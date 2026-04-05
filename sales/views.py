@@ -9,8 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from warehouse.models import Transaction
 from datetime import datetime
+import io
 import openpyxl
-from openpyxl.writer.excel import save_virtual_workbook
 
 # Create your views here.
 @login_required(login_url='/login/')
@@ -31,9 +31,6 @@ def SalesIndex(request):
         SO = paginator.page(paginator.num_pages)
     sot = SO_Transaction.objects.filter(SO__CreateDate__gte=today,SO__Currency='B').aggregate(s=Sum(F('Price')*F('Quantity')))
     sob = SO_Transaction.objects.filter(SO__CreateDate__gte=today,SO__Currency='K').aggregate(s=Sum(F('Price')*F('Quantity')))
-    print(today)
-    print(sot)
-    print(sot['s'])
     context={'SO': SO,'last':last,'totalbaht':sot['s'],'totalkyat':sob['s'],'customer':customer}
     return render(request,'sales/SO_list.html',context)
 
@@ -182,7 +179,6 @@ def newcustomer(request):
 def editcustomer(request,id):
     cus = buyer.objects.get(id=id)
     form = CustomerForm(request.POST or None,instance=cus)
-    print(form.is_valid())
     if form.is_valid():
         form.save()
         return redirect('salesindex')
@@ -206,10 +202,8 @@ def ImportFromJob(request,sid):
         else:
             if S.Customer.Pricelist == '1':
                 p = t.Inventory.RetailKyat()
-                print('retail')
             else:
                 p = t.Inventory.MemberKyat()
-                print('member')
 
         entry = SO_Transaction(
             SO = S,
@@ -333,8 +327,11 @@ def export_to_excel(request):
         sheet.append(row)
     
     # Save workbook to a virtual file
+    buffer = io.BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
     response = HttpResponse(
-        save_virtual_workbook(workbook),
+        buffer.getvalue(),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
     response['Content-Disposition'] = 'attachment; filename="data_export.xlsx"'

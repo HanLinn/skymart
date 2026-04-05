@@ -29,5 +29,3 @@ for i in range(6):
     
     # Format and print the month and its total
     month_name = start_date.strftime('%B %Y')
-    print(f"Total quantity sold in {month_name}: {monthly_quantity}")
-    print(f"Date range: {start_datetime.date()} to {end_datetime.date()}")
