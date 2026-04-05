@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q,Sum,Count,Func,F
+from django.db.models import Q,Sum,Count,Func,F,Case,When,DecimalField
 from django.db.models.functions import TruncDate
 from dateutil.relativedelta import relativedelta
 from datetime import datetime,date
@@ -19,7 +19,10 @@ def index(request):
     customer = Related.objects.filter(job__Type='O',job__CreateDate__gte=m).annotate(q = Sum('job__transaction__Qty')).order_by('-q')[:10]
 
     sales = SalesOrder.objects.filter(CreateDate__gte=m)
-    report = sales.annotate(date = TruncDate('CreateDate')).values('date').annotate(c=Sum(F('so_transaction__Quantity')*F('so_transaction__Price'))).values('date','Currency','c')
+    report = sales.annotate(date=TruncDate('CreateDate')).values('date').annotate(
+        baht=Sum(Case(When(Currency='B', then=F('so_transaction__Quantity')*F('so_transaction__Price')), default=0, output_field=DecimalField())),
+        kyat=Sum(Case(When(Currency='K', then=F('so_transaction__Quantity')*F('so_transaction__Price')), default=0, output_field=DecimalField()))
+    ).values('date', 'baht', 'kyat').order_by('-date')
 
 
     context = {'product':p,'thismonth':thismonth,'customer':customer,'report':report}
@@ -58,13 +61,11 @@ def saleschart(request):
     while start <= end:
         baht = SalesOrder.objects.filter(CreateDate__year = start.year,CreateDate__month=start.month,CreateDate__day = start.day).filter(Currency='B').aggregate(q = Sum(F('so_transaction__Quantity')*F('so_transaction__Price')))
         kyat = SalesOrder.objects.filter(CreateDate__year = start.year,CreateDate__month=start.month,CreateDate__day = start.day).filter(Currency='K').aggregate(q = Sum(F('so_transaction__Quantity')*F('so_transaction__Price')))
-        eqbaht = int(kyat['q'] * rate)
-        if kyat is None:
-            kyat = 0
-        if eqbaht is None:
-            eqbaht = 0
-        total = int(baht['q']+eqbaht)
-        labels.append(start)
+        kyat_q = kyat['q'] if kyat['q'] is not None else 0
+        baht_q = baht['q'] if baht['q'] is not None else 0
+        eqbaht = int(kyat_q * rate)
+        total = int(baht_q + eqbaht)
+        labels.append(str(start))
         data.append(total)
         start = start + relativedelta(days=1)
 
