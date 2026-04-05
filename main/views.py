@@ -52,24 +52,24 @@ def unisearch(request):
 @login_required(login_url='/login/')
 def saleschart(request):
     today = date.today()
-    rate = CurrencyRate.objects.last().Rate/100
-    start = date(today.year,today.month,1)
+    currency_rate = CurrencyRate.objects.last()
+    rate = (currency_rate.Rate / 100) if currency_rate else 0
     start = today - relativedelta(days=7)
     end = today
     labels = []
     data = []
     while start <= end:
-        baht = SalesOrder.objects.filter(CreateDate__year = start.year,CreateDate__month=start.month,CreateDate__day = start.day).filter(Currency='B').aggregate(q = Sum(F('so_transaction__Quantity')*F('so_transaction__Price')))
-        kyat = SalesOrder.objects.filter(CreateDate__year = start.year,CreateDate__month=start.month,CreateDate__day = start.day).filter(Currency='K').aggregate(q = Sum(F('so_transaction__Quantity')*F('so_transaction__Price')))
-        kyat_q = kyat['q'] if kyat['q'] is not None else 0
+        baht = SalesOrder.objects.filter(CreateDate__year=start.year, CreateDate__month=start.month, CreateDate__day=start.day, Currency='B').aggregate(q=Sum(F('so_transaction__Quantity') * F('so_transaction__Price')))
+        kyat = SalesOrder.objects.filter(CreateDate__year=start.year, CreateDate__month=start.month, CreateDate__day=start.day, Currency='K').aggregate(q=Sum(F('so_transaction__Quantity') * F('so_transaction__Price')))
         baht_q = baht['q'] if baht['q'] is not None else 0
+        kyat_q = kyat['q'] if kyat['q'] is not None else 0
         eqbaht = int(kyat_q * rate)
         total = int(baht_q + eqbaht)
         labels.append(str(start))
         data.append(total)
         start = start + relativedelta(days=1)
 
-    return JsonResponse(data={
+    return JsonResponse({
         'labels': labels,
         'data': data
     })
