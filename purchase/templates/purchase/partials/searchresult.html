@@ -1,0 +1,62 @@
+<!-- <ul id="searchresult" class="list-group">
+    {% if results %}
+    {% for result in results %}
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'filtertransactionp' id=PO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator">
+        <img src="{{ result.Image.url }}" style="height: 40px; width: 53px;display:inline-block"> {{ result.ProductName }}
+    </button>
+    {% endfor %}
+    {% else %}
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'newproduct' %}"
+    hx-target='#newproduct' hx-trigger="click" hx-indicator=".htmx-indicator">
+        Add New Product
+    </button>
+    {% endif %}
+</ul>
+<div id="newproduct"></div> -->
+<ul id="searchresult" class="list-group">
+    {% if results %}
+    <li class="list-group-item list-group-item-secondary">
+        <div class="row">
+            <div class="col-4">Name</div>
+            <div class="col-2">Buying</div>
+            <div class="col-2">Charges</div>
+            <div class="col-2">Price<small>(<i class="bi bi-calculator"></i></small>)</div>
+        </div>  
+    </li>
+    {% endif %}
+    {% for result in results %}
+    {% if forloop.last %}
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'filtertransactionp' id=PO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator"  id='last' onclick="document.getElementById('Quantity').focus();">
+    {% else %} 
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'filtertransactionp' id=PO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator" id="{{ forloop.counter }}" onclick="document.getElementById('Quantity').focus();">
+     {% endif %}
+        <!-- <img src="{{ result.Image.url }}" style="height: 40px; width: 53px;display:inline-block">  -->
+        <div class="row">
+            <div class="col-4 text-primary">{{ result.ProductName }}{{ result.Unit }}</div>
+            <div class="col-2">{{ result.BuyingPrice}}</div>
+            <div class="col-2">{{ result.charges}}</div>
+            <div class="col-2">
+                {{ result.RetailPrice }}
+                {% if result.rtprice > result.RetailPrice %} 
+                <small class="text-danger">
+                {% elif result.rtprice == result.RetailPrice %} 
+                <small class="text-success">
+                {% else %} 
+                <small class="text-warning">
+                {% endif %}
+                    ({{ result.rtprice }})
+                </small>
+            </div>
+        </div>  
+    </button>
+    {% endfor %}
+</ul>
+<script>
+    function jumptofirst(){
+        let firstresult = document.getElementById('1')
+        firstresult.focus()
+    }
+</script>

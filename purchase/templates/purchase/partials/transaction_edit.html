@@ -1,0 +1,37 @@
+<tr style='background-color:papayawhip;'>
+    <td colspan=6>
+        <form class='form-inline' method="POST" hx-post="{% url 'poedittransaction' form.instance.id %}" hx-target='#transactiontable'
+            hx-trigger='submit' hx-swap="outerHTML" hx-indicator=".htmx-indicator">
+
+            {% csrf_token %}
+            <!-- <div class='col-4'><img class='mr-1' src='{{ form.instance.Inventory.Image.url }}'
+                    style="height:80px; width: 106px; display:inlineblock"><small>{{ form.instance.Inventory.Barcode }}</small></div> -->
+            <div class="row">
+            <div class="col">
+            {{ form.Inventory }}
+            </div>
+            <div class="col">
+            {{ form.Quantity }}
+            </div>
+            <div class="col">
+            {{ form.Price }}
+            </div>
+            {{ form.PO }}
+            {{ form.errors }}
+            <div class="col">
+                <label for="update">update buying price</label>
+                <input name="update" id="update" type="checkbox">
+            </div>
+            <div class="col">
+            <button type='submit' class='btn btn-primary mr-2'><i class="bi bi-save"></i></button>
+                </div>
+            </div>
+        </form>
+    </td>
+</tr>
+<script>
+    function show() {
+      document.getElementById("update").checked = true;
+    }
+  
+</script>

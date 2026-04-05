@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}{% block title %}WMS{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}"><i class="bi bi-bag"></i>
+  Purchase</a>{% endblock %}
+{% block content %}
+<div class='container-fluid mt-2'>
+    <a  href="{% url 'newjob' %}" style='font-size: larger;'><i class="fas fa-plus-circle"
+        style='color:forestgreen;'></i>
+      New Job</a>
+    {% include 'purchase/partials/joblist.html' %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Sales Invoice{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}" tabindex="-1"><i class="bi bi-bag-heart"></i>
+    Sales</a>
+{% endblock subnav %}
+{% block content %}
+<div class="container-fluid">
+<div class='container-fluid'>
+    <div class="d-flex flex-row-reverse">
+        {% if SO.next != None %}
+        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' SO.next %}" tabindex="-1"><i class="bi bi-chevron-right"></i></a></div>
+        {% else %} 
+            <div class="p-2"><button class="btn btn-primary" disabled><i class="bi bi-chevron-right" tabindex="-1"></i></button></div>
+        {% endif %}
+        {% if SO.prev != None %}
+        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' SO.prev %}" tabindex="-1"><i class="bi bi-chevron-left"></i></a></div>
+        {% else %} 
+        <div class="p-2"><button class="btn btn-primary" tabindex="-1" disabled><i class="bi bi-chevron-left"></i></button></div>
+        {% endif %}
+    </div>
+    <div class='row'>
+        <div class='col-6'>
+            <p>SO ID: {{ SO.id }}</p>
+            <p>Date : {{ SO.CreateDate }}</p>
+            <p>Customer : {{ SO.Customer }}</p>
+        </div>
+        <div class='col-6'>
+            <p>Note : {{ SO.Note }}</p>
+            <p>CreateBy : {{ SO.User }}</p>
+            <p>Currency : {{ SO.get_Currency_display }}</p>
+        </div>
+    </div>
+
+</div>
+
+{% include "sales/partials/transactiontable.html" %}
+
+</div>
+
+</div>
+<script>
+  // ----------------------------
+  // Convert Amount to Burmese words
+  // ----------------------------
+  function numtotext() {
+    const amountEl = document.getElementById("subtotal");
+    const textEl = document.getElementById("text");
+
+    if (!amountEl || !textEl) return;
+
+    const amount = amountEl.textContent.trim();
+    textEl.innerHTML = amount
+      ? myanmarNumToWord.convertToBurmeseWords(amount)
+      : "";
+  }
+
+  // Run on initial load
+  document.addEventListener("DOMContentLoaded", numtotext);
+
+  // Run after every HTMX swap
+  document.body.addEventListener("htmx:afterSwap", numtotext);
+</script>
+{% endblock %}

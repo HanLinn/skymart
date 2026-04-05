@@ -1,0 +1,39 @@
+{% extends "main/base.html" %}{% block title %}Sales Orders{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}"><i class="bi bi-bag-heart"></i>
+    Sales</a>
+{% endblock subnav %}
+{% block content %}
+<div class='container'>
+    <h1>New Sales Order</h1>
+    <form method='POST' autocomplete="off">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            {{ form.Customer }}
+            <label for="Customer"><i class="bi bi-person"></i> Customer</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Currency }}
+            <label for="Currency"><i class="bi bi-currency-exchange"></i> Currency</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Note }}
+            <label for="Note"><i class="bi bi-journal"></i> Note</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Status }}
+            <label for="Status">Status</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Pay }}
+            <label for="Pay">Pay</label>
+        </div>
+        <div class="row">
+            <h2>Refund : {{ form.instance.Refund }} </h2>
+        </div>
+
+        <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+        {{ form.errors }}
+    </form>
+</div>
+{% endblock %}

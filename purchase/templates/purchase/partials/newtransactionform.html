@@ -1,0 +1,24 @@
+<div id='transactionform'>
+  <div class="spinner-border text-primary htmx-indicator" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <input class="form-control" type='text' placeholder="search" hx-get="{% url 'getsearchresultp' PO.id %}"
+      hx-target='#searchresult' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator" name="search"
+      style="size:large" value="{{ form.initial.Inventory.ProductName }}" hx-indicator=".htmx-indicator">
+  {% include 'purchase/partials/searchresult.html' %}
+  <form class='form-inline mt-1' method="POST" hx-post="{% url 'newpotransaction' PO.id %}" hx-target='#transactiontable'
+      hx-trigger='submit' hx-swap="outerHTML" autocomplete="off" hx-indicator=".htmx-indicator" >
+      {% csrf_token %}
+      {{form.Inventory }}
+      {{form.Quantity }}
+      {{form.Price }}{{ form.PO }}
+      <button class='btn btn-primary mr-1' type='submit'>Submit</button>
+      {% if form.initial.Inventory %}
+      <a class='btn btn-primary text-white' hx-get="{% url 'editprice' form.initial.Inventory.id %}" hx-target="#content" hx-swap="outerHTML">Edit Price</a>
+      {% endif %}
+      {{ form.errors }}
+  </form>
+  <div id="content"></div>
+</br>
+
+</div>

@@ -1,0 +1,21 @@
+<tr style='background-color:papayawhip;'>
+    <td colspan=5>
+    <form class='form-inline' method="POST" hx-post="{% url 'soedittransaction' form.instance.id %}" hx-target='#transactiontable'
+        hx-trigger='submit' hx-swap="outerHTML" hx-indicator=".htmx-indicator">
+
+        {% csrf_token %}
+        <!-- <div class='col-4'><img class='mr-1' src='{{ form.instance.Inventory.Image.url }}'
+                    style="height:80px; width: 106px; display:inlineblock"><small>{{ form.instance.Inventory.Barcode }}</small></div> -->
+        <div class="row">
+            {{ form.Inventory }}
+            {{ form.SO }}
+            {{ form.errors }}
+            <div class="col">{{ form.Quantity }}</div>
+            <div class="col">{{ form.Price }}</div>
+            <div class="col"><button type='submit' class='btn btn-primary'><i class="far fa-save"></i></button></div>
+
+        </div>
+
+    </form>
+    </td>
+</tr>

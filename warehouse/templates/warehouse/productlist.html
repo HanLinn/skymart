@@ -1,0 +1,70 @@
+{% extends "main/base.html" %}{% block title %}Product List{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}"><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div class='container'>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-12 col-md-7">
+            <input type="text" name="kw" value="{{ kw }}" class="form-control" placeholder="Search by name, tag, or barcode">
+        </div>
+        <div class="col-6 col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+        <div class="col-6 col-md-2">
+            <a class="btn btn-success w-100" href="{% url 'productlist_export' %}{% if kw %}?kw={{ kw }}{% endif %}">Excel</a>
+        </div>
+    </form>
+
+    <table class='table table-striped'>
+        <thead>
+            <th>Name</th>
+            <th class="text-start">Code</th>
+            <th class="text-end">Buying</th>
+            <th class="text-end">Kyat</th>
+            <th class="text-end">Baht</th>
+            <!-- <th>image</th> -->
+        </thead>
+        <tbody>
+        {% for product in products %}
+                <tr>
+                    <td><a href="#" hx-get="{% url 'editpricemodal' product.id %}" hx-target="#modals-here" class="nav-link text-primary"
+                        _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop" tabindex="-1">{{ product.ProductName }}</a></td>
+                    <td class="text-start">{{ product.Barcode }}</td>
+                    <td class="text-end">{{ product.BuyingPrice }}</td>
+                    <td class="text-end">{{ product.RetailKyat }}</td>
+                    <td class="text-end">{{ product.RetailBaht }}</td>
+                </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <nav aria-label="Product list pages">
+        <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if kw %}&kw={{ kw }}{% endif %}">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}{% if kw %}&kw={{ kw }}{% endif %}">Previous</a>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ products.number }} of {{ products.paginator.num_pages }}</span>
+            </li>
+
+            {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}{% if kw %}&kw={{ kw }}{% endif %}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if kw %}&kw={{ kw }}{% endif %}">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+{% endblock %}

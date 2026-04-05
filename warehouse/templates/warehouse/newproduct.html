@@ -1,0 +1,55 @@
+{% extends "main/base.html" %}{% block title %}New Product Form{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}"><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div class='container'>
+  <h1>New Product Form</h1>
+  <form method="POST" name="New Job" enctype='multipart/form-data' autocomplete="off">
+    {% csrf_token %}
+
+    <div class="form-floating mb-3">
+        {{ form.ProductName }}
+        <label for="ProductName"><i class="bi bi-box"></i> အမည်</label>
+      </div>
+      {% include 'warehouse/partials/similar.html' %}
+      <div class="form-floating mb-3">
+        {{ form.Tag }}
+        <label for="tag"><i class="bi bi-tags"></i> အခြားအမည်</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Barcode }}
+        <label for="barcode"><i class="bi bi-upc-scan"></i> Barcode</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Unit }}
+        <label for="unit"><i class="bi bi-boxes"></i> Unit</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Category }}
+        <label for="category">Category</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Base_Currency }}
+        <label for="Base_Currency">Base_Currency</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.MemberPrice }}
+        <label for="MemberPrice">MemberPrice</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.RetailPrice }}
+        <label for="RetailPrice">RetailPrice</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Minimum }}
+        <label for="minimum">Minimum</label>
+      </div>
+      
+    <label for="Image">Image</label>
+    {{ form.Image }}
+    {{ user.profile.Status }}      
+    <br>
+    <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+</form>
+</div>
+{% endblock %}

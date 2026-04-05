@@ -1,0 +1,8 @@
+<ul id='similar'>
+    {% if results %}
+    <li><b>Similar Product</b></li>
+    {% endif %}
+    {% for result in results %}
+        <li><a href="{% url 'editproduct' result.id %}">{{ result.ProductName }}</a></li>
+    {% endfor %}
+</ul>

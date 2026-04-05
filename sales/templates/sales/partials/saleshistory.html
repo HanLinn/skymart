@@ -1,0 +1,21 @@
+<div id="datasheet">
+    <table class="table">
+        <thead>
+            <th>Date</th>
+            <th>Customer</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Price</th>
+        </thead>
+        <tbody>
+            {% for p in transactions %}
+            <tr>
+                <td><a href="{% url 'SD' p.SO.id %}">{{ p.SO.CreateDate|date:'d-m-Y' }}</a></td>
+                <td>{{ p.SO.Customer }}</td>
+                <td class="text-end">{{ p.Quantity }}</td>
+                <td class="text-end">{{ p.Price }} {{p.SO.Currency }}</td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

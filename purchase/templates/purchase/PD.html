@@ -1,0 +1,43 @@
+{% extends "main/base.html" %}{% block title %}Purchase Order{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-2" href="{% url 'purchaseindex' %}"><i
+        class="bi bi-bag"></i> Purchase List</a>{% endblock %}
+{% block content %}
+<div class='container-fluid min-vh-100'>
+
+    <div class='row min-vh-100'>
+        <!-- soft copy container -->
+        <div class='col-lg-7 vh-75 overflow-auto'>
+            <div class='container-fluid vh-100'>
+                <div class='row'>
+                        <div class='col-6'>
+
+                            <p>PO ID: {{ PO.id }}</p>
+                            <p>Date : {{ PO.OrderDate }}</p>
+                            <p>Supplier : {{ PO.Supplier }}</p>
+                        </div>
+                        <div class='col-6'>
+                            <p>Note : {{ PO.Note }}</p>
+                            <p>CreateBy : {{ PO.Create_By }}</p>
+                            <p>Currency : {{ PO.get_Currency_display }}</p>
+                        </div>
+                </div>
+                <a class='btn btn-primary' href="{% url 'Pinvoice' id=PO.id p=1 %}">Print A5</a>
+                        <a class='btn btn-primary' href="{% url 'Pinvoice' id=PO.id p=2 %}">Print 2in</a>
+                {% include "purchase/partials/transactiontable.html" %}
+            </div>
+        </div>
+            <!-- hardcopy container -->
+        <div class="col-5  mh-100 vh-100 overflow-auto">
+            {% include "purchase/partials/hardcopy.html" %}
+        </div>
+    </div>
+
+
+
+
+
+    </div>
+
+
+
+    {% endblock %}

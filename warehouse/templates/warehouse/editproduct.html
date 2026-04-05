@@ -1,0 +1,105 @@
+{% extends "main/base.html" %}{% block title %}Edit Form{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}"><i
+    class="bi bi-building"></i>
+  WMS</a>{% endblock %}
+{% block content %}
+<div class='container'>
+  <div class="row">
+    <div class="col"><h1>{{ form.instance.ProductName }}</h1></div>
+    <div class="col text-end">
+    <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button"
+    aria-controls="offcanvasExample">
+    Detail <i class="bi bi-three-dots-vertical"></i>
+  </a>
+  </div>
+  <img class='rounded-3 img-fluid mb-2' src="{{ form.instance.Image.url }}" alt="missing"
+  style="max-width: 40%;height: auto;">
+  </div>
+      <form method="POST" name="invoice" enctype='multipart/form-data'>
+
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+          {{ form.ProductName }}
+          <label for="ProductName"><i class="bi bi-box"></i> အမည်</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.Tag }}
+          <label for="tag"><i class="bi bi-tags"></i> အခြားအမည်</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.Barcode }}
+          <label for="barcode"><i class="bi bi-upc-scan"></i> Barcode</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.Unit }}
+          <label for="unit"><i class="bi bi-boxes"></i> Unit</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.Category }}
+          <label for="category">Category</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.Base_Currency }}
+          <label for="Base_Currency">Base_Currency</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.MemberPrice }}
+          <label for="MemberPrice">MemberPrice</label>
+        </div>
+        <div class="form-floating mb-3">
+          {{ form.RetailPrice }}
+          <label for="RetailPrice">RetailPrice</label>
+        </div>
+        
+        <div class="form-floating mb-3">
+          {{ form.Minimum }}
+          <label for="minimum">Minimum</label>
+        </div>
+
+          {{ form.Image }}
+          <label for="image">Image</label>
+
+
+        {{ form.errors }}
+        <br>
+
+          <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+         
+          <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+            aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+              <img class='rounded' src='{{ form.instance.Image.url }}' alt='missing'
+                style="height: 80px; width: 106px;display:inline-block" />
+              <h5 class="offcanvas-title" id="offcanvasExampleLabel">{{ form.instance.ProductName }}</h5>
+              </br>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div>
+                <div class="btn-group">
+                  <a class='btn btn-primary text-white' hx-get="{% url 'stocktable' form.instance.id %}"
+                    hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-box2"></i>WHStock({{ form.instance.wh_stock }})</a>
+                  <a class='btn btn-primary text-white' hx-get="{% url 'purchasehistory' form.instance.id %}"
+                    hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag"></i>Purchase</a>
+                  <a class='btn btn-primary text-white' hx-get="{% url 'saleshistory' form.instance.id %}"
+                    hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag-heart"></i>Sales</a>
+                  <a class='btn btn-primary text-white' hx-get="{% url 'editprice' form.instance.id %}"
+                    hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-tags"></i>Price</a>
+                </div>
+              </div>
+              <div id="datasheet">
+
+              </div>
+            </div>
+          </div>
+
+
+      </form>
+      <div id="content" style="height:40px;">
+
+      </div>
+
+
+</div>
+{% endblock %}

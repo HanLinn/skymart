@@ -1,0 +1,74 @@
+<div id="modal-backdrop" class="modal-backdrop fade show" style="display:block;"></div>
+<div id="modal" class="modal fade show" tabindex="-1" style="display:block;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <h5 class="modal-title">Sales Order Edit</h5>
+        <button type="button" class="btn-close" onclick="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div id="content">
+
+            <h1>PAY</h1>
+            <form autocomplete="off"  hx-post="{% url 'SE' form.instance.id %}" hx-trigger='submit' hx-swap="outerHTML" hx-target="#content">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    {{ form.Customer }}
+                    <label for="Customer"><i class="bi bi-person"></i> Customer</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ form.Currency }}
+                    <label for="Currency"><i class="bi bi-currency-exchange"></i> Currency</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ form.Note }}
+                    <label for="Note"><i class="bi bi-journal"></i> Note</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ form.Status }}
+                    <label for="Status">Status</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ form.Pay }}
+                    <label for="Pay">Pay</label>
+                </div>
+                <div class="row">
+                    <h2>Refund : {{ form.instance.Refund }} </h2>
+                </div>
+        
+                <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+                {{ form.errors }}
+            </form>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a class='btn btn-primary' href="{% url 'invoice' id=form.instance.id p=2 %}" tabindex="-1">Print 2in</a>
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function closeModal() {
+      var container = document.getElementById("modals-here")
+      var backdrop = document.getElementById("modal-backdrop")
+      var modal = document.getElementById("modal")
+
+      modal.classList.remove("show")
+      backdrop.classList.remove("show")
+
+      setTimeout(function () {
+        container.removeChild(backdrop)
+        container.removeChild(modal)
+      }, 200)
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeModal()
+        // close modal here
+      }})
+  </script>

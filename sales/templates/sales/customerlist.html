@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}{% block title %}Customer List{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}"><i class="bi bi-bag-heart"></i>
+    Sales</a>
+{% endblock subnav %}
+{% block content %}
+<ul class="list-group">
+{% for customer in customers %} 
+<li class="list-group-item">{{ customer.Customer_Name }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

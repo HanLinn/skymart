@@ -1,0 +1,42 @@
+<div class="mt-1" id="datasheet">
+    <a class='btn btn-primary text-white' hx-get="{% url 'stockcount' product.id %}" hx-target="#content" hx-swap="outerHTML">Reset stock</a>
+    <table class='table table-responsive-sm mt-2'>
+        <thead>
+            <th scope="col">Job#</th>
+            <th scope="col">Date</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Qty</th>
+            <th scope="col">stock</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="4"><b>လက်ရှိအရေအတွက်</b></td>
+                <td class='text-end'><b>{{ product.wh_stock }}</b></td>
+            </tr>
+            {% for transaction in transactions %}
+            {% if transaction.JobId.Type == 'I' %}
+            <tr class="table-primary">
+            {% else %}
+             <tr class="table-secondary">   
+            {% endif %}
+            <td><a href='{% url "jobdetail" transaction.JobId.id %}'>J-{{ transaction.JobId.id }}</a>
+                </td>
+                <td>{{ transaction.JobId.CreateDate|date:'d-m-Y' }}</td>
+                <td>{{ transaction.JobId.CustomerOrVendor }} ({{ transaction.JobId.Vehicle }})</td>
+                <td class='text-end'>
+
+                    {{ transaction.actualQty }}
+                </td>
+                <td class="text-end"><b>{{ transaction.RunningStock }}</b></td>
+            </tr>
+            {% endfor %}
+            <tr>
+
+                <td colspan="4"><b>Last Count Date {{ CountDate|date:'d-m-Y' }}</b></td>
+                <td class='text-end'><b>{{ lastCount }}</b></td>
+
+            </tr>
+        </tbody>
+    </table>
+
+</div>

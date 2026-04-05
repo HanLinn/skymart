@@ -1,0 +1,95 @@
+<div id="searchresult">
+    {% if products %}
+    <table class='table table-responsive table-hover' style="width:100%">
+        <thead>
+            <th>Product Name</th>
+            <th class="text-end">Stock</th>
+            <th class="text-end">Baht</th>
+            <th class="text-end">Kyat</th>
+        </thead>
+        <tbody>
+            {% for d in products %}
+            <tr>
+                <td><a  data-bs-toggle="offcanvas" href="#" hx-get="{% url 'editpricemodal' d.id %}" hx-target="#modals-here" class="product nav-link text-primary"
+                    _="on htmx:afterOnLoad wait 10ms then .offcanvas to #offcanvas then add .show to #modal then add .show to #modal-backdrop">
+                    <img class="rounded" src="{{ d.Image.url }}" style="height: 50px; width: 68px;display:inline-block"> {{ d.ProductName }}
+                </a></td>
+                <!-- <td><a href="{% url 'editproduct' id=d.id %}">{{ d.ProductName}}</a></td> -->
+                {% if d.wh_stock > 0 %}<td class="text-end">{% else %}<td class="text-end text-danger">{% endif %}{{ d.wh_stock }} {{ d.Unit }}</br>{% if d.wh2_stock > 0 %}{{ d.wh2_stock }} {{ d.Unit }}{% endif %}</td>
+                <td class="table-primary text-end">{{ d.RetailBaht }}</td>
+                <td class="table-warning text-end">{{ d.RetailKyat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if customer %}
+    <table class='table table-striped'>
+        <thead>
+            <th>Customer/Vendor</th>
+        </thead>
+        <tbody>
+            {% for c in customer %}
+            <tr>
+                <td><a href="{% url 'customerdetail' id=c.id %}">{{ c.RelatedName }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if job %}
+    <table class='table table-striped'>
+        <thead>
+            <th>Job ID</th>
+            <th>Date</th>
+            <th>Customer</th>
+        </thead>
+        <tbody>
+            {% for j in job %}
+            <tr>
+                <td><a href="{% url 'jobdetail' id=j.id %}">J-{{ j.id }}</a></td>
+                <td>{{ j.CreateDate }}</td>
+                <td>{{ j.CustomerOrVendor }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if buyer %}
+    <table class='table table-striped'>
+        <thead>
+            <th>Sales Customer</th>
+        </thead>
+        <tbody>
+            {% for c in buyer %}
+            <tr>
+                <td><a href="{% url 'customer_detail' c.id %}">{{ c.Customer_Name }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if so %}
+    <table class='table table-striped'>
+        <thead>
+            <th>Sales Orders</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Amount</th>
+
+        </thead>
+        <tbody>
+            {% for s in so %}
+            <tr>
+                <td><a href="{% url 'SD' s.id %}">SO-{{ s.id }}</a></td>
+                <td>{{ s.CreateDate }}</td>
+                <td>{{ s.Customer }}</td>
+                <td>{{ s.Subtotal }} {{ s.Currency }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    
+</div>

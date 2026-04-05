@@ -1,0 +1,6 @@
+{% extends "main/base.html" %}{% block title %}Inventory receiver{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-2" href="{% url 'purchaseindex' %}"><i class="bi bi-bag"></i> Purchase List</a>{% endblock %}
+{% block content %}
+<h1>Receiving</h1>
+{% include 'purchase/partials/receiveform.html' %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "main/base.html" %}{% block title %}Job Form{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}"><i class="bi bi-bag-heart"></i>
+    Sales</a>
+{% endblock subnav %}
+{% block content %}
+<div id='content' class='container'>
+    <div class="card mt-3">
+        <div class="card-header text-center mb-3">Currency Form</div>
+        <div class='card-body'>
+            <form method="POST" name="currencyrate" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    {{ form.Rate }}
+                    <label for="Rate">Rate</label>
+                  </div>
+                  <div class="form-floating mb-3">
+                    {{ form.Note }}
+                    <label for="Note">Note</label>
+                  </div>
+
+                {% if form.errors %}
+                {{ form.errors }}
+                {% endif %}
+                <br>
+                <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+
+            </form>
+        </div>
+        <ul>
+            {% for rate in rates %} 
+            <li>
+            {{ rate.Rate }} @ {{ rate.CreateDate }}
+            {% if forloop.counter == 1 %}
+            <span class="badge badge-secondary">Current Rate</span>
+            {% endif %}
+            </li>
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>
+{% endblock %}

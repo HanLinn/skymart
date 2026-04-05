@@ -1,0 +1,17 @@
+<li class='list-group-item' style='background-color:papayawhip;'>
+    <form method="POST" hx-post="{% url 'edittransaction' form.instance.pk %}"
+    hx-target='#transactiontable' hx-trigger='submit' hx-swap="outerHTML">
+    {% csrf_token %}
+        <div class='row'>
+            <!-- <div class='col-4'><img class='mr-1' src='{{ form.instance.Inventory.Image.url }}'
+                    style="height:80px; width: 106px; display:inlineblock"><small>{{ form.instance.Inventory.Barcode }}</small></div> -->
+            <div class='col-6'>{{ form.Inventory }}</div>
+            <div class='col-3'>{{ form.Qty }}</div>
+            {{ form.JobId }}
+            <div class='col-3'>
+                {{ form.errors }}
+                <button type='submit' class='btn btn-primary'><i class="bi bi-save"></i></button>
+            </div>
+        </div>
+    </form>
+</li>

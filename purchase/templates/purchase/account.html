@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}{% block title %}New Account Form{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-2" href="{% url 'purchaseindex' %}"><i class="bi bi-bag"></i> Purchase List</a>{% endblock %}
+{% block content %}
+<div class="container mt-2">
+    <h1>Account Form</h1>
+    <form class="form mt-1" method="POST" enctype='multipart/form-data'>
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            {{ form.Type }}
+            <label for="Type">Type</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.AccountDate }}
+            <label for="AccountDate">AccountDate</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Vendor }}
+            <label for="Type">Vendor</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Amount }}
+            <label for="Amount">Amount</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.Note }}
+            <label for="Note">Note</label>
+        </div>
+
+            {{ form.Photo }}
+
+
+            <button class="w-100 btn btn-lg btn-primary md-4 mt-2" type="submit">Submit</button>
+    </form>
+    <div class="form-floating mb-3">
+        <Select id="vendor" class="form-select col-4 mb-1 border-primary mt-2" name="vendor" hx-get="{% url 'accountlistfilter' %}"
+            hx-target="#list" hx-swap="outerHTML">
+            <option value="0"><b>--------------</b></option>
+            {% for vendor in Vendors %}
+            <option value="{{ vendor.id }}">{{ vendor.Name }} ({{ vendor.Balance }})</option>
+            {% endfor %}
+        </Select>
+        <label for="vendor">Vendor</label>
+        </div>
+    
+{% include 'purchase/partials/accountlist.html' %}
+
+</div>
+{% endblock %}

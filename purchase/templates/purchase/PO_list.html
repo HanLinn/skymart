@@ -1,0 +1,27 @@
+{% extends "main/base.html" %}{% block title %}Purchase order list{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-2" href="{% url 'purchaseindex' %}" ><i
+        class="bi bi-bag"></i> Purchase List</a>{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1>Purchase Order List</h1>
+
+    <div class="row mb-1">
+        <div class="col-2">
+            <a class="btn btn-primary" href="{% url 'PO' %}"><i class="bi bi-plus-square"></i> New PO</a>
+        </div>
+        <div class="col-4">
+            <div class="form-floating mb-3">
+            <Select id="vendor" class="form-select col-4 mb-1 border-primary" name="vendor" hx-get="{% url 'polistfilter' %}"
+                hx-target="#list" hx-swap="outerHTML">
+                <option value="0"><b>--------------</b></option>
+                {% for vendor in vendors %}
+                <option value="{{ vendor.id }}">{{ vendor.Name }}</option>
+                {% endfor %}
+            </Select>
+            <label for="vendor">Vendor</label>
+            </div>
+        </div>
+    </div>
+    {% include 'purchase/partials/POlist.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<tr>
+    <td><button @click="open = ! open">Toggle</button></td>
+    <td>J-{{ job.id }}</td>
+    <td>{{ job.CreateDate }}</td>
+    <td>{{ job.Agent }}</td>
+    <td>{{ job.Vehicle }}</td>
+</tr>
+<tr>
+    <td colspan="4">
+        <div x-show="open" @click.outside="open = true">
+            <table class="table">
+                <thead>
+                    <th>No</th>
+                    <th>Inventory</th>
+                    <th>Quantity</th>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr class="bg-success">
+                        <td class="text-right">{{ forloop.counter }}</td>
+                        <td colspan="2">{{ transaction.Inventory }}</td>
+                        <td colspan="2">{{ transaction.Qty }} {{ transaction.Inventory.Unit }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>

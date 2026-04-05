@@ -1,0 +1,44 @@
+<div id="container">
+    <canvas id="stock-chart" data-url="{% url 'saleschart' %}"></canvas>
+  </div>
+  
+  <script>
+  
+    $(function () {
+  
+      var $stockchart = $("#stock-chart");
+      $.ajax({
+        url: $stockchart.data("url"),
+        success: function (data) {
+          console.log(data)
+          var ctx = $stockchart[0].getContext("2d");
+  
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: data.labels,
+              datasets: [{
+                label: 'Sales',
+                borderColor : 'rgb(75, 192, 192)',
+                fill: false,
+                data: data.data
+              }]          
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Daily Sales Data Baht'
+              },
+            }
+          });
+  
+        }
+      });
+  
+    });
+  
+  </script>

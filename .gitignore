@@ -1,0 +1,37 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ---- Virtual Environment ----
+venv/
+myprojectenv/
+.env/
+.venv/
+
+# ---- Django ----
+*.log
+*.pot
+*.pyc
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+static/
+
+
+# ---- VS Code / IDE ----
+.vscode/
+.idea/
+
+# ---- OS specific ----
+.DS_Store
+Thumbs.db
+
+# ---- Git ----
+*.orig
+
+django_project_backup.tar.gz
+*.tar.gz

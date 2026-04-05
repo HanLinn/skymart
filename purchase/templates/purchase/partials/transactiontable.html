@@ -1,0 +1,85 @@
+<div id="transactiontable">
+    <table class='table table-bordered table-responsive-sm mt-1'>
+        <thead>
+            <th>Product</th>
+            <th class="text-end">Quantity</th>
+            <th class="text-end">Price</th>
+            <th class="text-end">Amount</th>
+            <th><i class="bi bi-tools"></i></th>
+        </thead>
+        <tbody>
+            {% for i in PO.po_transaction_set.all %}
+            <tr id='t-{{ i.id }}'>
+                <td>
+                    <!-- <img class='mr-1' src='{{ i.Inventory.Image.url }}' alt='missing'
+                    style="height: 80px; width: 106px;display:inline-block" /> -->
+
+                    <a href="#" hx-get="{% url 'editpricemodal' i.Inventory.id %}" hx-target="#modals-here" class="nav-link text-primary"
+                    _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop" tabindex="-1">{{ i.Inventory }}</a>
+            
+                </td>
+                <td class='text-end'>{{ i.Quantity }} {{i.Inventory.Unit}}</td>
+                <td class='text-end'>{{ i.Price }}</td>
+                <td class='text-end'>{{ i.Amount }}</td>
+                <td>
+                    <div class="d-grid gap-2 d-md-block">
+                        <form method="post">{% csrf_token %}<button hx-confirm="Are you sure?" class='btn btn-danger'
+                                type="button"
+                                hx-post="{% url 'podeletetransaction' i.id %}" hx-target='#t-{{ i.id }}' hx-swap="
+                                outerHTML"><i class="bi bi-trash3"></i></button></form>
+                        <button class="btn btn-primary" hx-get="{% url 'poedittransaction' id=i.id %}"
+                            hx-target='#t-{{ i.id }}' hx-swap='outerHTML'><i class="bi bi-pencil-square"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+            {% endfor %}
+            <tr>
+                <td colspan="3"><b style='font-size: large;'>Subtotal</b></td>
+                <td class='text-end'><b style='font-size: large;'>{{ PO.Subtotal|floatformat:2 }}</b></td>
+                {% if PO.Status == 'O' %}
+                <td><a class='btn btn-warning' href="{% url 'postaccount' id=PO.id %}">Account</a></td>
+                {% endif %}
+            </tr>
+
+        </tbody>
+    </table>
+
+    {% include 'purchase/partials/newtransactionform.html' %}
+
+    <div>
+        <table class="table table-responsive-sm table-striped">
+            <thead>
+                <th>နေ့စွဲ</th>
+                <th>Type</th>
+                <th class="text-end">Amount</th>
+                <th class="text-end">ကျန်ငွေ</th>
+                <th>Note</th>
+                <th>file</th>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.AccountDate|date:"d/m/Y" }}</td>
+                    <td>{{ account.get_Type_display }}</td>
+                    <td class="text-end">{{ account.Amount }}</td>
+                    <td class="text-end"><b>{{ account.balance }}</b></td>
+                    <td>{{ account.Note|default_if_none:"" }}</td>
+                    <td>
+                        {% if account.Photo %}
+                    
+                        <a href="{{ account.Photo.url }}"><i class="fa fa-paperclip" aria-hidden="true"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No record exist</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}{% block title %}Cash Book{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}"><i class="bi bi-building"></i></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div class='container'>
+    <h1>Cash Book</h1>
+    <form class="inline-form" method="POST">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            {{ form.Description }}
+            <label for="Description">Description</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Type }}
+            <label for="Type">Type</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Amount }}
+            <label for="Amount">Amount</label>
+          </div>
+        <button type="submit" class="btn btn-primary mt-1">Submit</button>
+
+    </form>
+    <table class="table table-responsive">
+        <thead>
+            <th>CreateDate</th>
+            <th>CreateBy</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Balance</th>
+        </thead>
+        <tbody>
+            {% for data in CashBook %}
+            <tr>
+            <td>{{ data.CreateDate|date:"d/m/Y" }}</td>
+            <td>{{ data.CreateBy }}</td>
+            <td>{{ data.get_Type_display }}</td>
+            <td>{{ data.Description }}</td>
+            <td class="text-right">{{ data.Amount }}</td>
+            <td class="text-right">{{ data.balance }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+{% endblock %}

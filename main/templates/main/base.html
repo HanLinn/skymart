@@ -1,0 +1,284 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name='theme-color' content='#f8f8f8' />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- bootstrap 4 -->
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+  <!-- jquery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+ <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script> -->
+
+ <!-- bootstrap js -->
+
+    <!-- bootstrap 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+     
+  <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script> -->
+
+  <!-- htmx -->
+  <script src="https://unpkg.com/htmx.org@1.6.1"></script>
+  
+  <!-- alpinejs -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- fontawesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <!-- bootstarp icon -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+  <!-- chartjs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+  <!-- myanmar num to word -->
+  <script src="https://unpkg.com/myanmar-num-to-word@latest"></script> 
+
+  <!-- favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'main/img/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'main/img/favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'main/img/favicon/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'main/img/favicon/site.webmanifest' %}">
+  <style>
+    body{
+      padding-top: 40px;
+      background-color: #f5f5f5;
+    }
+  </style>
+
+  <title>{% block title %} Home {% endblock title %}</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'mainindex' %}" tabindex="-1"><i class="bi bi-house-door"></i>
+      Home</a> |<div class="me-2"></div>
+    {% block subnav %} {% endblock subnav %}
+<!-- 
+    <form class="d-flex form-inline my-2 my-lg-0" action="{% url 'search' %}" autocomplete="off">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name='kw'>
+    </form> -->
+
+    <a id='search' class="nav-link active text-primary text-center border border-primary rounded-pill" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas" onclick="document.getElementById('unisearch').focus();" style='width:250px' tabindex="-1">
+      <span>Search type /</span> <i class="bi bi-search"></i></i>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto">
+
+      </ul>
+
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+        {% if user.profile.Staff == 'm' %}
+        <li class="nav-item dropdown">
+          <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" tabindex="-1">
+            Purchase(အဝယ်)
+          </a>
+          <div class="dropdown-menu px-2" aria-labelledby="navbarDropdown">
+            <a class="nav-link" href="{% url 'purchaseindex' %}"><i class="bi bi-file-text" tabindex="-1"></i> Purchase List</a>
+            <a class="nav-link" href="{% url 'PO' %}"><i class="bi bi-plus-square" tabindex="-1"></i> New
+              PO</a>
+            <a class="nav-link" href="{% url 'Account' %}" tabindex="-1"><i class="bi bi-bank"></i> Account</a>
+            <!-- <div class="dropdown-divider">Purchase</div>
+            <a class="nav-link" href="{% url 'shopreceive' %}" tabindex="-1"><i class="bi bi-truck"></i>
+              Receiving</a>
+            <a class="nav-link" href="{% url 'newvendor' %}" tabindex="-1"><i class="bi bi-person-plus"></i> New Vendor</a>
+            <a class="nav-link" href="{% url 'newcarry' %}" tabindex="-1"><i class="bi bi-person-plus"></i>
+              New Carry</a> -->
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" tabindex="-1">
+            Sales(အရောင်း)
+          </a>
+
+          <div class="dropdown-menu px-2" aria-labelledby="navbarDropdown">
+            <a class="nav-link" href="{% url 'salesindex' %}"><i class="bi bi-file-text" tabindex="-1"></i> Sales List</a>
+            <a class="nav-link" href="{% url 'SO' %}" tabindex="-1"><i class="bi bi-plus-square"></i> New
+              Order </a>
+            <div class="dropdown-divider">Customer</div>
+            <a class="nav-link" href="{% url 'ncustomer' %}" tabindex="-1"><i class="bi bi-person-plus"></i>
+              New Customer </a>
+            <a class="nav-link" href="{% url 'newcurrencyrate' %}" tabindex="-1"><i class="bi bi-currency-exchange"></i>
+              Currency </a>
+            </div>
+        </li>
+        {% endif %}
+        <li class="nav-item dropdown">
+          <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" tabindex="-1">
+            Product (ကုန်ပစ္စည်း)
+          </a>
+
+          <div class="dropdown-menu px-2" aria-labelledby="navbarDropdown">
+
+            <a class="nav-link" href="{% url 'productlist' %}"><i class="bi bi-list-columns" tabindex="-1"></i> Product List</a>
+            <!-- <a href="#" hx-get="{% url 'new_product' %}" hx-target="#modals-here" class="nav-link text-primary"
+            _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"><i class="bi bi-plus-square"></i>New Product</a> -->
+            <!-- <a href="#" hx-get="{% url 'new_product' %}" hx-target="#modals-here" class="nav-link text-primary on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"><i class="bi bi-plus-square"></i>New Product</a> -->
+            <a href="#" hx-get="{% url 'new_product' %}" hx-target="#modals-here" class="nav-link text-primary"
+            _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"><i class="bi bi-plus-square"></i>New Product</a>
+    <div class="dropdown-divider">Customer</div>
+            <!-- <a class="nav-link" href="{% url 'newproduct' %}"><i class="bi bi-plus-square" tabindex="-1"></i> New Product</a> -->
+            <a class="nav-link" href="{% url 'productexport' %}"><i class="bi bi-download" tabindex="-1"></i> Export Product</a>
+          </div>
+        </li>
+        <!-- <li class="nav-item dropdown">
+          <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" tabindex="-1">
+            Warehouse (ဂိုဒေါင်)
+          </a>
+
+          <div class="dropdown-menu px-2" aria-labelledby="navbarDropdown">
+            <a class="nav-link" href="{% url 'index' %}"><i class="bi bi-file-text" tabindex="-1"></i> Job List</a>
+            <a class="nav-link" href="{% url 'productlist' %}"><i class="bi bi-list-columns" tabindex="-1"></i> Product List</a>
+            <a class="nav-link active" href="{% url 'newjob' %}"><i class="bi bi-plus-square" tabindex="-1"></i>
+              New Job</a>
+            <a class="nav-link" href="{% url 'cashbook' %}"><i class="bi bi-journal-bookmark" tabindex="-1"></i> Cash
+              Book</a>
+            <div class="dropdown-divider">Customer</div>
+            <a class="nav-link" href="{% url 'customerlist' %}"><i class="bi bi-person-lines-fill" tabindex="-1"></i>   All Customer</a>
+            <a class="nav-link" href="{% url 'newcustomer' %}"><i class="bi bi-person-plus" tabindex="-1"></i> New Customer</a>
+          </div>
+        </li> -->
+        <li class="nav-item">
+          <a id='baht' class="nav-link active bg-info text-white" href="{% url 'quicksales' c=1 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/thailand.png" alt="thailand"/>
+            Baht (ctrl+,)</a>
+        </li>
+        <li class="nav-item">
+          <a id='kyat' class="nav-link active bg-white" href="{% url 'quicksales' c=2 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/myanmar.png" alt="myanmar"/>
+            Kyat (ctrl+.)</a>
+        </li>
+        <li class="nav-item dropdown active">
+          <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false" tabindex="-1"><i class="bi bi-person-square"></i> {{ user }}</a>
+          <div class="dropdown-menu" aria-labelledby="dropdown03">
+            <a class="dropdown-item" href="{% url 'logout' %}" tabindex="-1"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            <a class="dropdown-item" href="/admin" tabindex="-1"><i class="bi bi-gear"></i> Admin</a>
+            <form class="form-control" method="post">{% csrf_token %}<button hx-confirm="Are you sure to update all job complete?"
+                class='btn btn-danger btn-sm' type="button"
+                hx-post="{% url 'completealljob' %}" hx-target='#response' hx-swap=" outerHTML" tabindex="-1">complete</button>
+            </form>
+            <div id="response"></div>
+          </div>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}" tabindex="-1"><i class="bi bi-person-square"></i>
+            Login</a>
+        </li>
+        {% endif %}
+
+
+      </ul>
+
+    </div>
+  </div>
+  </nav>
+  <div id="main-content" style="padding-top: 70px;">
+    {% block content %}{% endblock %}
+  </div>
+  <div id="modals-here"></div>
+
+    <!-- offcavas -->
+    <div class="offcanvas offcanvas-top border border-primary border-top-0 border-end-0 border-start-0 border-5 rounded-bottom rounded-3" tabindex="-1" id="offcanvas" data-bs-scroll="false" aria-labelledby="offcanvasLabel" style="height:max-content">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title text-primary"><i class="bi bi-search"></i> Search</h5>
+          <div class="spinner-border text-primary htmx-indicator" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        <button type="button" name="search" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="container-fluid">
+          <input id='unisearch' type="search" placeholder="Search" aria-label="Search" name="search" class="form-control" hx-get="{% url 'universalsearch' %}"
+          hx-target='#result' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator" autocomplete="off" onfocus="this.value = ''">
+          <div class="mt-2" id="result"></div>
+        </div>
+  
+      </div>
+      </div>
+
+</body>
+
+<script>
+  document.addEventListener('keydown', function (e) {
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    if (e.key === '/') {
+      e.preventDefault();
+
+      const offcanvasEl = document.getElementById('offcanvas');
+      const bsOffcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+      bsOffcanvas.show();
+
+      // Wait for offcanvas to be fully shown before focusing input
+      offcanvasEl.addEventListener('shown.bs.offcanvas', function focusSearch() {
+        const input = document.getElementById('unisearch');
+        if (input) input.focus();
+        // Remove listener after it runs once
+        offcanvasEl.removeEventListener('shown.bs.offcanvas', focusSearch);
+      });
+    }
+  });
+
+  function kyat(event) {
+    event?.preventDefault(); // In case it's called from click
+    alert('Custom Print triggered!');
+    // window.print(); // Or your own logic
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === '.') {
+      e.preventDefault(); // Optional: stop default P behavior
+      document.getElementById('kyat')?.click();
+    }
+  });
+
+  function baht(event) {
+    event?.preventDefault(); // In case it's called from click
+    alert('Custom Print triggered!');
+    // window.print(); // Or your own logic
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === ',') {
+      e.preventDefault(); // Optional: stop default P behavior
+      document.getElementById('baht')?.click();
+    }
+  });
+
+</script>
+<script>
+  const offcanvasEl = document.getElementById('offcanvas');
+  const searchInput = document.getElementById('unisearch');
+
+  offcanvasEl.addEventListener('shown.bs.offcanvas', function () {
+    searchInput.focus();
+  });
+</script>
+
+</html>

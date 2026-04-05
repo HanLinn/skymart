@@ -1,0 +1,47 @@
+{% extends "main/base.html" %}{% block title %}Job Form{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}" ><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div id='content' class='container'>
+  <h1>New Job Form</h1>
+  <form method="POST" name="invoice" enctype='multipart/form-data'>
+    {% csrf_token %}
+    <div class="form-floating mb-3">
+        {{ form.Warehouse }}
+        <label for="ProductName"><i class="bi bi-building"></i> Warehouse</label>
+    </div>
+    <div class="form-floating mb-3">
+      {{ form.Status }}
+      <label for="Status"><i class="bi bi-stoplights"></i> Status</label>
+    </div>
+    <div class="form-floating mb-3">
+        {{ form.Type }}
+        <label for="Type"><i class="bi bi-arrow-left-right"></i> Type</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.CustomerOrVendor }}
+        <label for="CustomerOrVendor"><i class="bi bi-person"></i> Customer Or Vendor</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Agent }}
+        <label for="Agent"><i class="bi bi-incognito"></i> Agent</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Vehicle }}
+        <label for="Vehicle"><i class="bi bi-truck"></i> Vehicle</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Note }}
+        <label for="Note"><i class="bi bi-journal"></i> Note</label>
+      </div>
+
+
+    {% if form.errors %}
+    {{ form.errors }}
+    {% endif %}
+    <br>
+    <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+
+</form>
+</div>
+{% endblock %}

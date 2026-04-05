@@ -1,0 +1,129 @@
+
+<div id="list">
+    <ul class="list-group">
+        {% for o in SO %} 
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="text-center"><small>{{ o.CreateDate|date:"d/m/Y H:i" }}</small></div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <a href="{% url 'SD' o.id %}">S-{{ o.id }}</a>
+                    </div>
+                    <div class="col text-end">
+                        <a href="#"><i class="bi bi-bar-chart-line"></i></a>
+                        <a href="#" hx-get="{% url 'editcustomer' o.Customer.id %}" hx-target="#modals-here" hx-trigger="click"
+                        _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop">{{ o.Customer }}</a>
+                    </div>
+                    <div class="col text-end">
+                        {{ o.Subtotal|default_if_none:"0" }} {{ o.Currency }}
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            {% if o.Status == 'O' %}
+                            <div class="col-5"><a class="btn btn-danger" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="list-home"><i class="bi bi-chevron-compact-down"></i></a>
+                            {% else %} 
+                            <div class="col-5"><a class="btn btn-success" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="list-home"><i class="bi bi-chevron-compact-down"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item collapse" id="S{{ o.id }}">
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-success">
+                        <div class="row">
+                            <div class="col">
+                                {% if o.Job != None %}
+                                <a href="{% url 'jobdetail' o.Job.id %}">J-{{ o.Job }}</a>
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                {{ o.User }}
+                            </div>
+                        </div>
+                    </li>
+                    {% for i in o.so_transaction_set.all %} 
+                    <li class="list-group-item list-group-item-primary">
+
+                        <div class="row">
+                            <div class="col">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="col text-start">
+                                {{ i.Inventory }}
+                            </div>
+                            <div class="col">
+                                {{ i.Quantity }} {{ i.Inventory.Unit }}
+                            </div>
+                            <div class="col text-end">
+                                {{ i.Price }}
+                            </div>
+                            <div class="col text-end">
+                                {{ i.Amount }}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                    <li class="list-group-item list-group-item-success">
+                        <div class="row">
+                            <div class="row">
+                                <div class="col">
+                                    Total Qty: {{ o.totalqty }}
+                                </div>
+                                <div class="col">
+                                    <div class="text-end">Total: {{ o.Subtotal }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+
+        {% endfor %}
+    </ul>
+</div>
+
+
+
+
+{% if SO.has_other_pages %}
+<nav aria-label="Page navigation">
+<ul class="pagination">
+    {% if SO.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ SO.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+    <li class="page-item disabled"><span><a href="#" class="page-link">&laquo;</a></span></li>
+    {% endif %}
+
+    {% for i in SO.paginator.page_range %}
+    {% if SO.number == i %}
+    {% if SO.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ SO.previous_page_number }}">{{ SO.previous_page_number }}</a></li>
+
+    {% endif %}
+    <li class="page-item active"><span><a class="page-link" href="#">{{ i }}</a> <span class="sr-only">(current)</span></span></li>
+    {% if SO.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ SO.next_page_number }}">{{ SO.next_page_number }}</a></li>
+    {% endif %}
+    
+
+    {% endif %}
+    {% endfor %}
+    
+    
+
+    {% if SO.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ last }}">End</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ SO.next_page_number }}">&raquo;</a></li>
+    {% else %}
+    <li class="page-item disabled"><span><a href="#" class="page-link">&raquo;</a></span></li>
+    {% endif %}
+</ul>
+</nav>
+{% endif %}
+<div id="modal" class="modal fade">
+    <div id="dialog" class="modal-dialog" hx-target="this"></div>
+  </div>

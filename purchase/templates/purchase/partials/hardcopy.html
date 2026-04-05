@@ -1,0 +1,37 @@
+<div id="hardcopy" class='col-lg-5 w-100 overflow-auto'>
+
+    <form action="{% url 'upload' PO.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-8">
+                <input class="form-control" type="file" name="images" multiple>
+            </div>
+            <div class="col-4">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </div>
+    </form>
+    <br>
+    <form class='form-inline' method="POST" hx-post="{% url 'importjobp' PO.id %}" hx-target="#transactiontable"
+        hx-trigger='submit' hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-8">
+                <Select class="form-select" name="JobID">
+                    <option value="-">-----</option>
+                    {% for job in PO.Supplier.Related.job_set.all|dictsortreversed:"id" %}
+                    <option value="{{ job.id }}">J-{{ job.id }} @ {{ job.CreateDate|date:"d/m/Y" }}</option>
+                    {% endfor %}
+                </Select>
+            </div>
+            <!-- <input class='form-control' name='JobID' type="number" placeholder="JOB ID" required> -->
+            <div class="col-4">
+                <button class='btn btn-success' type='submit'>submit</button>
+            </div>
+        </div>
+    </form>
+    <br>
+    {% for p in PO.hardcopy_set.all %}
+    <img class='form-control' src="{{ p.Photo.url }}">
+    {% endfor %}
+</div>

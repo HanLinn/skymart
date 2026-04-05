@@ -1,0 +1,21 @@
+<div id="datasheet">
+    <table class="table">
+        <thead>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Price</th>
+        </thead>
+        <tbody>
+            {% for p in transactions %}
+            <tr>
+                <td><a href="{% url 'PD' p.PO.id %}">{{ p.PO.OrderDate|date:'d-m-Y' }}</a></td>
+                <td>{{ p.PO.Supplier }}</td>
+                <td class="text-end">{{ p.Quantity }}</td>
+                <td class="text-end">{{ p.Price }}</td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

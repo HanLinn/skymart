@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}{% block title %}Jobs Detail{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}" ><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div class='container-fluid'>
+    <h1>{{ customer.RelatedName }}</h1>
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Job ID</th>
+                <th>Date</th>
+                <th>Agent</th>
+                <th>Vehicle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for j in jobs %}
+            <tr hx-get="{% url 'gettransaction' j.id %}" hx-swap="outerHTML" hx-trigger='click'>
+                <td>{{ forloop.counter }}</td>
+                <td>J-{{ j.id }}</td>
+                <td>{{ j.CreateDate }}</td>
+                <td>{{ j.Agent }}</td>
+                <td>{{ j.Vehicle }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

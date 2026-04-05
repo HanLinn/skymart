@@ -1,0 +1,17 @@
+{% extends "main/base.html" %}{% block title %}New Customer Form{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}" ><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<div class='container'>
+    <h1>New Customer or Vendor</h1>
+    <form method="POST" name="New Related">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            {{ form.RelatedName }}
+            <label for="RelatedName"><i class="bi bi-person"></i> Customer/Vendor</label>
+          </div>
+        <br>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

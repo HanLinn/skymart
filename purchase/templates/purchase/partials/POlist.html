@@ -1,0 +1,54 @@
+<table id="list" class='table'>
+    <thead>
+        <th>PO ID</th>
+        <th>Date</th>
+        <th>Vendor</th>
+        <th class="text-end">Subtotal</th>
+    </thead>
+    <tbody>
+        {% for p in PO %}
+        <tr>
+            <td><a href="{% url 'PD' p.id %}">PO-{{ p.id }}</a></td>
+            <td>{{ p.OrderDate }}</td>
+            <td>{{ p.Supplier }}</td>
+            <td class="text-end">{{ p.Subtotal|floatformat:0 }} {{ p.Currency }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if PO.has_other_pages %}
+<nav aria-label="Page navigation">
+<ul class="pagination">
+    {% if PO.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ PO.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+    <li class="page-item disabled"><span><a href="#" class="page-link">&laquo;</a></span></li>
+    {% endif %}
+
+    {% for i in PO.paginator.page_range %}
+    {% if PO.number == i %}
+    {% if PO.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ PO.previous_page_number }}">{{ PO.previous_page_number }}</a></li>
+
+    {% endif %}
+    <li class="page-item active"><span><a class="page-link" href="#">{{ i }}</a> <span class="sr-only">(current)</span></span></li>
+    {% if PO.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ PO.next_page_number }}">{{ PO.next_page_number }}</a></li>
+    {% endif %}
+    
+
+    {% endif %}
+    {% endfor %}
+    
+    
+
+    {% if PO.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ last }}">End</a></li>
+    <li class="page-item"><a class="page-link" href="?page={{ PO.next_page_number }}">&raquo;</a></li>
+    {% else %}
+    <li class="page-item disabled"><span><a href="#" class="page-link">&raquo;</a></span></li>
+    {% endif %}
+</ul>
+</nav>
+{% endif %}

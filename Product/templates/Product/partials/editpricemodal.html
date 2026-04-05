@@ -1,0 +1,60 @@
+<div id="modal-backdrop" class="modal-backdrop fade show" style="display:block;"></div>
+<div id="modal" class="modal fade show" tabindex="-1" style="display:block;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <img class='rounded' src='{{ form.instance.Image.url }}' alt='missing'
+          style="height: 80px; width: 106px;display:inline-block" />
+        <h5 class="modal-title"><a class="text-center" href="{% url 'editproduct' id=form.instance.id %}"> {{ form.instance.ProductName }}</a></h5>
+      </br>
+        <button type="button" class="btn-close" onclick="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div id="content">
+            <div>
+              <div class="btn-group">
+
+                <a class='btn btn-primary text-white' hx-get="{% url 'purchasehistory' form.instance.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag"></i>Purchase</a>
+                <a class='btn btn-primary text-white' hx-get="{% url 'saleshistory' form.instance.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag-heart"></i>Sales</a>
+                <a class='btn btn-primary text-white' hx-get="{% url 'editprice' form.instance.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML" hx-trigger="click,revealed"><i class="bi bi-tags"></i>Price
+                  </a>
+              </div>
+            </div>
+            <p class="modal-title"><i class="bi bi-upc-scan"></i> : {{ form.instance.Barcode }}</p>
+            <div id="datasheet">
+              <div id="datasheet"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function closeModal() {
+      var container = document.getElementById("modals-here")
+      var backdrop = document.getElementById("modal-backdrop")
+      var modal = document.getElementById("modal")
+
+      modal.classList.remove("show")
+      backdrop.classList.remove("show")
+
+      setTimeout(function () {
+        container.removeChild(backdrop)
+        container.removeChild(modal)
+      }, 200)
+    }
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeModal()
+        // close modal here
+      }})
+  </script>

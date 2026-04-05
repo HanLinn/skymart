@@ -1,0 +1,64 @@
+{% extends "main/base.html" %}{% block title %}POS{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}"><i class="bi bi-bag-heart"></i>
+    Sales</a>
+{% endblock subnav %}
+{% block content %}
+<div class="container-fluid" id="transaction">
+    <div class="row mb-1 pb-2">
+        <div class="col-7">
+            <div class="container-fluid rounded">
+                <form class="input-group" method="get" hx-get="{% url 'barcode' sales.id %}"  hx-trigger='submit' hx-target="#transaction">
+                    <input class="form-control" type="text" placeholder="Barcode" name="barcode">
+                    <button class="btn btn-outline-primary">Add</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-7 p-2 overflow-auto rounded mx-auto bg-light shadow">
+            <div class='container-fluid vh-100'>
+                <div class="row mt-1">
+                    {% for product in product %}
+                    <div class="col-md-3 p-1">
+                        <div class="card" >
+                            <img src={{ product.Image.url }} class="card-img-top" alt="...">
+                            <div class="card-body">
+                              <h5 class="card-title">{{ product.ProductName }}</h5>
+                              <p class="card-text"></p>
+                              {% if sales.Currency == 'K' %}
+                              <a href="#" class="btn btn-primary">{{ product.RetailKyat }}</a>
+                              {% else %}
+                              <a href="#" class="btn btn-primary">{{ product.RetailBaht }}</a>
+                              {% endif %}
+                            </div>
+                          </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-4 p-2 vh-100 overflow-auto rounded mx-auto bg-light shadow">
+            <div class='container-fluid vh-100 '>
+                <ul class="list">
+                    
+                    <li class="list-item">
+                        ID:{{ sales.id }}
+                    </li>
+                    <li class="list-item">
+                        Customer{{ sales.Customer }}
+                    </li>
+                    <li class="list-item">
+                        Date:{{ sales.CreateDate }}
+                    </li>
+                    
+                </ul>
+                {% include 'sales/partials/transaction.html' %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Receipt</h5>
+        </br>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <button type="button" class="btn btn-default" id='print-receipt'>Print</button>
+        <page size='2in' id="receipt">
+
+            <div class='container-fluid'>
+                <h2 class='text-center'>{{ J.get_Type_display }}</h2>
+                <h6>JobID: J-{{ J.id }}</h6>
+                <h6>Customer/Vendor: {{ J.CustomerOrVendor }}</h6>
+                <h6>Vehicle: {{ J.Vehicle }}</h6>
+                <h6>Date: {{ J.CreateDate|date:"d/m/Y h:i A" }}</h6>
+                <h6>Total Qty : {{ J.totalQty }}</h6>
+                {% if J.Note == None %}
+                {% else %}
+                <h6>Note : {{ J.Note }}</h6>
+                {% endif %}
+            </div>
+    
+            <table class='table table-bordered table-condensed'>
+                <tbody>
+                    <tr>
+                        <td>Description</td>
+                        <td class='text-right'>Qty</td>
+                        <td>Loc</td>
+                    </tr>
+    
+    
+                    {% for t in J.transaction_set.all %}
+                    <tr style="border-top:1px solid;" height="10">
+                        <td><span class='product'>{{ t.Inventory }}</span></td>
+                        <td class='text-right'><span class='product'>{{ t.Qty }}{{ t.Inventory.Unit }}</span></td>
+                        <td></td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </page>
+
+    </div>
+</div>
+<script>
+    $('#print-receipt').click(function () {
+        console.log('from this')
+        $('#receipt').printThis({
+            importCSS: false,
+            loadCSS: [
+                "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
+                "#"
+                ]
+        })
+    });
+</script>

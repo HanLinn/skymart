@@ -1,0 +1,38 @@
+from django.urls import path,include
+from . import views
+
+urlpatterns = [
+    #path('admin/', admin.site.urls),
+    path('',views.index,name='index'),
+    path('jobdetail/<int:id>',views.jobdetail,name='jobdetail'),
+    path('completejob/<int:id>',views.completejob,name='completejob'),
+    path('jobprint/<int:id>',views.jobprint,name='jobprint'),
+    path('newproduct',views.newProduct,name='newproduct'),
+    path('editproduct/<int:id>',views.editProduct,name='editproduct'),
+    path('search/',views.search,name='search'),
+    path('searchproduct/',views.searchproduct,name='searchproduct'),
+    path('productlist/',views.productlist,name='productlist'),
+    path('productlist/export/',views.productlist_export,name='productlist_export'),
+    path('stockcount/<int:id>',views.stockcount,name='stockcount'),
+    path('newjob',views.NewJob,name='newjob'),
+    path('editjob/<int:id>',views.EditJob,name='editjob'),
+    path('deletjob/<int:id>',views.DeleteJob,name='deletejob'),
+    path('check/<int:id>',views.check,name='check'),
+    path('newtransaction/<int:id>',views.newtransaction,name='newtransaction'),
+    path('getproductid/<int:id>',views.getproductid,name='getproductid'),
+    path('delete/<int:id>',views.deletetransaction,name='deletetransaction'),
+    path('newcustomer',views.newRelated,name='newcustomer'),
+    path('customerlist',views.CustomerList,name='customerlist'),
+    path('customerdetail/<int:id>',views.CustomerDetail,name='customerdetail'),
+    path('export',views.ProductExport,name='productexport'),
+    path('edittransaction/<int:id>',views.geteditform,name='edittransaction'),
+    path('refreshjoblist',views.refreshjoblist,name='refreshjoblist'),
+    path('refreshjobdetail/<int:id>',views.refreshjobdetail,name='refreshjobdetail'),
+    path('similarproduct/',views.similarproduct,name='similarproduct'),
+    path('new_product',views.NewProduct,name='new_product'),
+    path('transaction/<int:id>',views.gettransaction,name='gettransaction'),
+    path('stocktable/<int:id>/',views.stocktable,name='stocktable'),
+    path('salesimport/<int:id>',views.ImportFromSales,name='salesimport'),
+    path('complatealljob',views.CompleteAllJob,name='completealljob'),
+    path('cashbook',views.Cash_Book,name='cashbook')
+]

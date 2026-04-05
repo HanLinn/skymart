@@ -1,0 +1,120 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'css/printview.css' %}">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href='https://mmwebfonts.comquas.com/fonts/?font=pyidaungsu' />
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+        integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+    <title>Print Job</title>
+</head>
+
+<body onload="window.print()">
+
+    <page size='2in'>
+
+        <div class='container-fluid'>
+            <h2 class='text-center'>{{ J.get_Type_display }}</h2>
+            <h4>JobID: J-{{ J.id }}</h4>
+            <h4>Customer/Vendor: {{ J.CustomerOrVendor }}</h4>
+            <h4>Vehicle: {{ J.Vehicle }}</h4>
+            <h4>Date: {{ J.CreateDate|date:"d/m/Y h:i A" }}</h4>
+            <h4>Total Qty : {{ J.totalQty }}</h4>
+            {% if J.Note == None %}
+            {% else %}
+            <h4>Note : {{ J.Note }}</h4>
+            {% endif %}
+        </div>
+
+        <table class='table table-condensed'>
+            <tbody>
+                <tr>
+                    <td>Description</td>
+                    <td class='text-right'>Qty</td>
+                    <td>Loc</td>
+                </tr>
+
+
+                {% for t in J.transaction_set.all %}
+                <tr style="border-top:1px solid;" height="10">
+                    <td><span class='product'>{{ t.Inventory }}</span></td>
+                    <td class='text-right'><span class='product'>{{ t.Qty }}{{ t.Inventory.Unit }}</span></td>
+                    <td></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>WH Manager____________</p>
+        <p class='text-center'>------------------------------------------------</p>
+
+        <div class='container-fluid'>
+            <h2 class='text-center'>{{ J.get_Type_display }}</h2>
+            <h4>JobID: J-{{ J.id }}</h4>
+            <h4>Customer/Vendor: {{ J.CustomerOrVendor }}</h4>
+            <h4>Vehicle: {{ J.Vehicle }}</h4>
+            <h4>Date: {{ J.CreateDate|date:"d/m/Y h:i A" }}</h4>
+            <h4>Total Qty : {{ J.totalQty }}</h4>
+            {% if J.Note == None %}
+            {% else %}
+            <h4>Note : {{ J.Note }}</h4>
+            {% endif %}
+        </div>
+        <table class='table table-condensed'>
+            <tbody>
+                <tr>
+                    <td>Description</td>
+                    <td class='text-right'>Qty</td>
+                    <td>Loc</td>
+                </tr>
+
+
+                {% for t in J.transaction_set.all %}
+                <tr style="border-top:1px solid;" height="10">
+                    <td><span class='product'>{{ t.Inventory }}</span></td>
+                    <td class='text-right'><span class='product'>{{ t.Qty }}{{ t.Inventory.Unit }}</span></td>
+                    <td></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>Deliver____________</p>
+        <h4>ပစ္စည်းအရေအတွက်၊အမျိုးအစားမှန်ကန်စွာရရှိပါသည်။</h4>
+
+
+        <footer>
+            <div align='center'>
+                <div class="container">
+                    <div class="btn-group">
+
+                        <a class="btn btn-primary mt-2" href='{% url 'jobdetail' J.id %}'><span class="glyphicon glyphicon-home"></span>Job</a>
+                        <button class='btn btn-primary' type=button onclick='window.print();'><span
+                                class="glyphicon glyphicon-print"></span> Print this page</button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </page>
+</body>
+<script>
+
+</script>
+
+</html>

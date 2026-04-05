@@ -1,0 +1,54 @@
+<div id='content' class='container-fluid'>
+    <div class='row ml-1'>
+            <input class="form-control" type='text' placeholder="search" hx-get="{% url 'searchproduct' %}"
+            hx-target='#inventory' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator"
+            name="search"> 
+        <form class='form-inline mt-1' method="POST" hx-post="{% url 'newreceive' %}"
+                    hx-target='#content' hx-trigger='submit' hx-swap="outerHTML">
+                {% csrf_token %}
+                <div class='form-group'>
+                <label for="Product">Product </label>
+                {{ form.Inventory }}
+                </div>
+                <label for="Quantity">Quantity </label>
+                {{ form.Quantity }}
+                <label for="Destination">Destination </label>
+                {{ form.Destination }}
+                <label for="Vendor">Vendor </label>
+                {{ form.Vendor }}
+                <label for="Carry">Carry </label>
+                {{ form.CarryBy }}
+                <label for="Note">Note </label>
+                {{ form.Note }}
+
+                <button class='btn btn-primary' type="submit">OK</button>
+
+        </form>
+    </div>
+    <table class='table table-responsive-sm mt-2'>
+        <thead>
+            <th>CreateDate</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Destination</th>
+            <th>Vendor</th>
+            <th>CarryBy</th>
+            <th>Note</th>
+            <th>Control</th>
+        </thead>
+        <tbody>
+            
+            {% for r in receivelist %}
+            <tr>
+                <td>{{ r.CreateDate }}</td>
+                <td>{{ r.Inventory.ProductName }}</td>
+                <td>{{ r.Quantity }}</td>
+                <td>{{ r.Destination }}</td>
+                <td>{{ r.Vendor.Name }}</td>
+                <td>{{ r.CarryBy }}</td>
+                <td>{{ r.Note }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

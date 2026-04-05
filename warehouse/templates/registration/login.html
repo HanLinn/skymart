@@ -1,0 +1,30 @@
+{% extends "main/base.html" %} {% block title %}Login{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="#" style='color:forestgreen;'><i class="bi bi-person-check"></i>
+    Login</a>{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+
+<div class='container'>
+    <h1>You are already Login!</h1>
+</div>
+{% else %}
+<div class="container">
+<form method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+    <h1 class="h3 mb-3 fw-normal text-center">Please sign in</h1>
+
+    <div class="form-floating">
+      <input type="text" class="form-control" id="floatingInput" placeholder="User Name" name="username">
+      <label for="floatingInput">User Name</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+      <label for="floatingPassword">Password</label>
+    </div>
+
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+    <p class="mt-5 mb-3 text-muted text-center">&copy; 2021–2022</p>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

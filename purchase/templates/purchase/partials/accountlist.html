@@ -1,0 +1,30 @@
+<table id="list" class="table table-responsive-sm table-striped mt-2">
+    <thead>
+        <th>Date</th>
+        <th>Vendor</th>
+        <th>Type</th>
+        <th class="text-end">Amount</th>
+        <th class="text-end">Balance</th>
+        <th>Note</th>
+        <th>slip</th>
+    </thead>
+    <tbody>
+        {% for account in accounts %}
+        <tr>
+            <td>{{ account.AccountDate|date:"d/m/Y" }}</td>
+            <td>{{ account.Vendor }}</td>
+            <td>{{ account.get_Type_display }}</td>
+            <td class="text-end">{{ account.Amount }}</td>
+            <td class="text-end"><b>{{ account.balance }}</b></td>
+            <td>{{ account.Note|default_if_none:"" }}</td>
+            <td>
+                {% if account.Photo %}
+                
+                <a href="{{ account.Photo.url }}"><i class="fa fa-paperclip" aria-hidden="true"></i></a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>

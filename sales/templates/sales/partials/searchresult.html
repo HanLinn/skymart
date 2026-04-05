@@ -1,0 +1,53 @@
+<!-- <ul id="searchresult" class="list-group">
+    {% for result in results %}
+
+    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-start align-items-start" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator" tabindex="0">
+        <img src="{{ result.Image.url }}" style="height: 40px; width: 53px;display:inline-block">
+         <span class="text-start">{{ result.ProductName }}</span>
+         <div class="justify-content-end">
+         <span class="badge bg-primary rounded-pill bd-highlight">{{ result.RetailBaht }}B/{{ result.RetailKyat }}K</span>
+         <span class="badge bg-warning rounded-pill bd-highlight">{{ result.wh_stock }}</span>
+         </div>
+    </button>
+
+    {% endfor %}
+</ul> -->
+
+<ul id="searchresult" class="list-group border border-primary">
+    {% if results %}
+    <li class="list-group-item list-group-item-secondary">
+        <div class="row">
+            <div class="col-4">Name</div>
+            <div class="col-2">Price(B)</div>
+            <div class="col-2">Price(K)</div>
+            <div class="col-2">Stock</div>
+        </div>  
+    </li>
+    {% endif %}
+    {% for result in results %}
+    {% if forloop.last %}
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator" id= "last"  onclick="document.getElementById('Quantity').focus();window.scrollTo(0, document.body.scrollHeight);">
+    {% else %} 
+    <button type="button" class="list-group-item list-group-item-action" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}"
+    hx-target='#transactionform' hx-trigger="click" hx-indicator=".htmx-indicator" id="{{ forloop.counter }}"  onclick="document.getElementById('Quantity').focus();window.scrollTo(0, document.body.scrollHeight);">
+
+    {% endif %}
+    <!-- <img src="{{ result.Image.url }}" style="height: 40px; width: 53px;display:inline-block"> -->
+        <div class="row">
+            <div class="col-4 text-primary">{{ result.ProductName }}({{ result.Unit }})</div>
+            <div class="col-2">{{ result.RetailBaht}}</div>
+            <div class="col-2">{{ result.RetailKyat}}</div>
+            <div class="col-2">{{ result.wh_stock }}</div>
+        </div>  
+    </button>
+    {% endfor %}
+</ul>
+<script>
+
+    function jumptofirst(){
+        let firstresult = document.getElementById('1')
+        firstresult.focus()
+    }
+</script>

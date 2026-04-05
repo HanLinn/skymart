@@ -1,0 +1,175 @@
+<!-- <div id="product">
+<form method="POST" name="New Product" hx-post="{% url 'new_product' %}"
+hx-target='#product' hx-trigger='submit' hx-swap="outerHTML" autocomplete="off">
+{% csrf_token %}
+
+<div class="form-floating mb-3">
+    {{ form.ProductName }}
+    <label for="ProductName"><i class="bi bi-box"></i> အမည်</label>
+  </div>
+    {% include 'warehouse/partials/similar.html' %}
+    <div class="form-floating mb-3">
+        {{ form.Tag }}
+        <label for="tag"><i class="bi bi-tags"></i> အခြားအမည်</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Barcode }}
+        <label for="barcode"><i class="bi bi-upc-scan"></i> Barcode</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Category }}
+        <label for="category">Category</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Unit }}
+        <label for="unit"><i class="bi bi-boxes"></i> Unit</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Base_Currency }}
+        <label for="Base_Currency">Base_Currency</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.MemberPrice }}
+        <label for="MemberPrice">MemberPrice</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.RetailPrice }}
+        <label for="RetailPrice">RetailPrice</label>
+      </div>
+      <div class="form-floating mb-3">
+        {{ form.Minimum }}
+        <label for="minimum">Minimum</label>
+      </div>
+    <!-- <label for="Minimum">Minimum</label>
+    {{ form.Minimum }} -->
+    {{ user.profile.Status }}      
+    <br>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+</div>   -->
+
+
+<div id="modal-backdrop" class="modal-backdrop fade show" style="display:block;"></div>
+<div id="modal" class="modal fade show" tabindex="-1" style="display:block;">
+	<div class="modal-dialog modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title">New Product</h5>
+      <button type="button" class="btn-close" onclick="closeModal()"></button>
+		</div>
+		<div class="modal-body">
+      <div id="product">
+        <form name="New Product" hx-post="{% url 'new_product' %}" hx-target='#product'
+          hx-trigger='submit' hx-swap="outerHTML" autocomplete="off">
+          {% csrf_token %}
+
+          <div class="form-floating mb-3">
+              {{ form.ProductName }}
+              <label for="ProductName"><i class="bi bi-box"></i> အမည်</label>
+            </div>
+            {% include 'warehouse/partials/similar.html' %}
+            <div class="form-floating mb-3">
+              {{ form.Tag }}
+              <label for="tag"><i class="bi bi-tags"></i> အခြားအမည်</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.Barcode }}
+              <label for="barcode"><i class="bi bi-upc-scan"></i> Barcode</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.Unit }}
+              <label for="unit"><i class="bi bi-boxes"></i> Unit</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.Category }}
+              <label for="category">Category</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.Base_Currency }}
+              <label for="Base_Currency">Base_Currency</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.MemberPrice }}
+              <label for="MemberPrice">MemberPrice</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.RetailPrice }}
+              <label for="RetailPrice">RetailPrice</label>
+            </div>
+            <div class="form-floating mb-3">
+              {{ form.Minimum }}
+              <label for="minimum">Minimum</label>
+            </div>
+            
+          <label for="Image">Image</label>
+          {{ form.Image }}
+          {{ user.profile.Status }}      
+          <br>
+          <button class="w-100 btn btn-lg btn-primary md-4" type="submit">Submit</button>
+<!-- 
+          {% csrf_token %}
+
+          <div class="form-floating mb-3">
+            {{ form.ProductName }}
+            <label for="ProductName"><i class="bi bi-box"></i> အမည်</label>
+          </div>
+          {% include 'warehouse/partials/similar.html' %}
+          <div class="form-floating mb-3">
+            {{ form.Tag }}
+            <label for="tag"><i class="bi bi-tags"></i> အခြားအမည်</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Barcode }}
+            <label for="barcode"><i class="bi bi-upc-scan"></i> Barcode</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Category }}
+            <label for="category">Category</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Unit }}
+            <label for="unit"><i class="bi bi-boxes"></i> Unit</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Minimum }}
+            <label for="minimum">Minimum</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Base_Currency }}
+            <label for="minimum">Base_Currency</label>
+          </div>
+          <div class="form-floating mb-3">
+            {{ form.Status }}
+            <label for="minimum">Status</label>
+          </div>
+          <label for="Minimum">Minimum</label>
+          {{ form.Minimum }}
+          {{ user.profile.Status }}
+          <br>
+          <button class="btn btn-primary" type="submit">Submit</button> -->
+        </form>
+      </div>	
+		</div>
+		<div class="modal-footer">
+
+		  <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+  <script>
+      function closeModal() {
+	      var container = document.getElementById("modals-here")
+	      var backdrop = document.getElementById("modal-backdrop")
+	      var modal = document.getElementById("modal")
+
+	      modal.classList.remove("show")
+	      backdrop.classList.remove("show")
+
+	    setTimeout(function() {
+		    container.removeChild(backdrop)
+		    container.removeChild(modal)
+	    }, 200)
+      }
+  </script>

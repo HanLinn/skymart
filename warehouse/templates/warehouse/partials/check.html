@@ -1,0 +1,7 @@
+
+    <div class='col-md-3'>
+        <input id='check' name='k' hx-get="/check/{{ J.id }}" hx-trigger="keyup delay:500ms changed"
+        hx-swap="innerHTML" hx-target="#check-results" class="form-control" type="text" placeholder="Barcode..">
+    </div>
+    <div class='col-md-3' id="check-results"></div>
+

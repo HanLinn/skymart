@@ -1,0 +1,118 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'css/printview.css' %}">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href='https://mmwebfonts.comquas.com/fonts/?font=pyidaungsu' />
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+        integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=KoHo">
+
+    <title>Print Job</title>
+</head>
+
+<body onload="window.print()">
+
+    {% if p == 1 %}
+    <page size='A6'>
+        {% else %}
+        <page size="2in">
+            {% endif %}
+            <div class='container-fluid'>
+                <h1 class="text-center"><i class="fas fa-shopping-basket"></i></h1>
+                <h2 class='text-center'>SKYMART</h2>
+                <h5 class="text-center">#{{ SO.id }} <i class="far fa-calendar"></i> {{ SO.CreateDate|date:"d/m/Y h:i A" }}</h5>
+                <h4 class="text-center">09691178889 <i class="fa fa-phone-square" aria-hidden="true"></i></h4>
+                <h4 class="text-center"><i class="far fa-smile-beam"></i> {{ SO.Customer }}</h4>
+            </div>
+
+            <table class='table table-condensed'>   
+                <thead>
+                    <th class='text-left'>Qty</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+
+                </thead>
+                <tbody>
+
+                    {% for t in SO.so_transaction_set.all %}
+                    <tr style="border-top:1px solid;" height="10">
+                        <td class='text-left'><span class='product'>{{ t.Quantity }}{{ t.Inventory.Unit }}</span></td>
+                        <td><span class='product'>{{ t.Inventory }}</span></td>
+                        <td class='text-right'>{{ t.Price }}</td>
+                        <td class='text-right'>{{ t.Amount|intcomma }}</td>
+                    </tr>
+
+                    {% endfor %}
+                    <tr>
+                        <td colspan="3"><b>Total ({{ SO.get_Currency_display }})</b></td>
+                        <td class='text-right'><b>{{ SO.Subtotal|intcomma }}</b></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><b>Pay</b></td>
+                        <td class='text-right'><b>{{ SO.Pay|intcomma }}</b></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><b>Refund</b></td>
+                        <td class='text-right'><b>{{ SO.Refund|intcomma }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+            <h5 class='text-center'><i class="fab fa-facebook"></i> www.facebook.com/sky.mart.mwd <i class="far fa-thumbs-up"></i></h5>
+            <h5 class="text-center">Happy shopping</h5>
+
+            <footer>
+                <div align='center'>
+                    <div class="container">
+                        <div class="btn-group">
+                            <a class="btn btn-primary mt-2" href="{% url 'quicksales' c=1 %}"><span
+                                    class="glyphicon glyphicon-home"></span>New Baht Order</a>
+                            <a class="btn btn-primary mt-2" href="{% url 'quicksales' 2 %}"><span
+                                    class="glyphicon glyphicon-home"></span>New Kyat Order</a>
+
+                            <a class="btn btn-primary mt-2" href="{% url 'SD' SO.id %}"><span
+                                    class="glyphicon glyphicon-home"></span>Invoice</a>
+                            <button class='btn btn-primary' type=button onclick='window.print();'><span
+                                    class="glyphicon glyphicon-print"></span> Print this page</button>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </page>
+<script>
+    // Function to handle the afterprint event
+function handleAfterPrint() {
+  // Redirect to the previous page
+  window.location.href = document.referrer;
+}
+
+// Function to handle the print or cancel event
+function handlePrintCancel() {
+  // Add an event listener for the afterprint event
+  window.onafterprint = handleAfterPrint;
+}
+
+// Add an event listener for the beforeprint event
+window.onbeforeprint = handlePrintCancel;
+
+</script>
+</body>
+
+
+</html>

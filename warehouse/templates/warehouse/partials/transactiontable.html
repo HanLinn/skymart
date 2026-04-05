@@ -1,0 +1,122 @@
+<!-- <div hx-get="{% url 'refreshjobdetail' J.id %}" hx-trigger="every 180s"> -->
+<div>
+    <ul id='transactiontable' class='list-group mt-3'>
+        <li class='list-group-item'>
+            <div class='row'>
+                <div class='col-4 text'><b>Product</b></div>
+                <div class='col-4'><b>Name</b></div>
+                <div class='col-2'><b>Qty</b></div>
+                <div class='col-2 text-start'><i class="bi bi-tools"></i></div>
+            </div>
+        </li>
+        {% for t in J.transaction_set.all %}
+        <li class='list-group-item' id='t-{{ t.id }}'>
+
+            <div class='row'>
+
+                <div class='col-4'><img class='rounded mr-1' src='{{ t.Inventory.Image.url }}' alt='missing'
+                        style="height: 80px; width: 106px;display:inline-block" /><small>{{ t.Inventory.Barcode}}</small></div>
+                <div class='col-4'>{{ t.Inventory.ProductName }}</div>
+                <div class='col-2'>{{ t.Qty }} {{t.Inventory.Unit}}</div>
+
+
+                {% if J.Status == 'W' %}
+                <div class='col-2'>
+                    <div class="d-grid gap-2 d-md-block">
+                        <form method="post">{% csrf_token %}<button hx-confirm="Are you sure?" class='btn btn-danger'
+                                type="button"
+                                hx-post="{% url 'deletetransaction' t.id %}"" hx-target='#t-{{ t.id }}' hx-swap="
+                                outerHTML"><i class="bi bi-trash3"></i></button></form>
+                        <button class="btn btn-primary" hx-get="{% url 'edittransaction' t.id %}"
+                            hx-target='#t-{{ t.id }}' hx-swap='outerHTML'><i class="bi bi-pencil-square"></i></button>
+                    </div>
+                </div>
+                {% else %}
+                <div class='col-2'>
+                    <a class="btn btn-warning" href="/admin/warehouse/transaction/{{ t.id }}/change/"><i class="bi bi-lock"></i></a>
+                </div>
+                {% endif %}
+            </div>
+
+        </li>
+        {% endfor %}
+
+        {% if J.Status == 'W' %}
+        <li class='list-group-item' style='background-color:papayawhip;'>
+            <div class='row'>
+
+                <input class="form-control" type='text' id="search" placeholder="search" hx-get="{% url 'searchproduct' %}"
+                    hx-target='#inventory' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator"
+                    name="search" autocomplete="off">
+
+            </div>
+        </li>
+        <li class='list-group-item' style='background-color:papayawhip;'>
+            <div class='row'>
+                <div>
+
+                    <form class='form-inline' method="POST" hx-post="{% url 'newtransaction' J.id %}"
+                        hx-target='#transactiontable' hx-trigger='submit' hx-swap="outerHTML" autocomplete="off" >
+
+                        {% csrf_token %}
+
+                        {{ form.Inventory }}
+
+                        {{ form.Qty }}
+
+                        <button type='submit' class='btn btn-primary mt-1'><i class="bi bi-plus-circle"></i> Add</button>
+
+
+                        <button hx-get="{% url 'new_product' %}" hx-target="#product" hx-trigger="click" class="btn btn-primary ml-2 mt-1" hx-swap="outerHTML"><i class="bi bi-box2"></i> new product</button>
+                    
+                        {{ form.JobId }}
+
+                        {% if form.errors %}
+
+                        <div class="alert alert-warning" role="alert">
+                            {{ form.Qty.errors }}
+                        </div>
+
+                        {% endif %}
+
+                    </form>
+
+                    
+                </div>
+            </div>
+
+        </li>
+        {% endif %}
+        <li class='list-group-item'>
+            <div id='product'></div>
+        </li>
+
+        <li class='list-group-item md-3' style='background-color:papayawhip;'>
+
+            {% if J.Status == 'W' %}
+            <div class="row">
+                {% include 'warehouse/partials/check.html' %}
+            </div>
+            {% else %}
+            <div class="row">
+                <div class='col md-6'><img class='img-fluid mr-1' src='{{ J.Photo.url }}' alt='missing'
+                        style="max-width: 40%;height: auto;" /></div>
+            </div>
+            {% endif %}
+            <div class='row'>
+                <div class='col md-2'>
+                    <div class='text-left'><b>Total quantity: {{ J.totalQty}}</b></div>
+                </div>
+                <div class="col md-6">
+                    <form class='form-inline' method="POST" hx-post="{% url 'salesimport' J.id %}" hx-target="#transactiontable" hx-trigger='submit' hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <input class='form-control' name='SalesID' type="number" placeholder="SalesID" required>
+                        <button class='btn btn-success btn-sm' type='submit'>submit</button>
+                    </form>
+                </div>
+            </div>
+        </li>
+
+    </ul>
+</div>
+{% include 'warehouse/partials/offcanvareceipt.html' %}

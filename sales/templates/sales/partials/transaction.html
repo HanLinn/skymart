@@ -1,0 +1,22 @@
+<table class="table">
+    <thead>
+        <th>Quantity</th>
+        <th>Inventory</th>
+        <th class="text-end">Price</th>
+        <th class="text-end">Amount</th>
+    </thead>
+    <tbody>
+        {% for t in sales.so_transaction_set.all %}
+        <tr>
+            <td>{{ t.Quantity }}{{ t.Inventory.Unit }}</td>
+            <td>{{ t.Inventory.ProductName }}</td>
+            <td class="text-end">{{ t.Price }}</td>
+            <td class="text-end">{{ t.Amount }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="3"><b>Total</b></td>
+            <td class="text-end"><b>{{ sales.Subtotal }}</b></td>
+        </tr>
+    </tbody>
+</table>

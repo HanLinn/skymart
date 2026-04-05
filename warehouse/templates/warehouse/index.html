@@ -1,0 +1,22 @@
+{% extends "main/base.html" %}{% block title %}WMS{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}" ><i class="bi bi-building"></i>
+  WMS</a>{% endblock %}
+{% block content %}
+<div class='container-fluid'>
+    <div class="btn-group">
+    <a class="btn btn-primary mb-2"  href="{% url 'newjob' %}"><i class="bi bi-plus-square"></i>
+      New Job</a>
+    </div>
+    <form method="get" hx-get="{% url 'refreshjoblist' %}" hx-trigger="every 10s" hx-target="#joblist">
+    <select  class="form-select" name="wh">
+      <option value="W" selected>Warehouse1</option>
+      <option value="2">Warehouse2</option>
+      <option value="S">Shop</option>
+    </select>
+    <!-- <button class="btn btn-warning" hx-get="{% url 'refreshjoblist' %}" hx-trigger="click">refresh</button> -->
+    </form>
+  </br>
+    {% include 'warehouse/partials/joblist.html' %}
+
+</div>
+{% endblock %}

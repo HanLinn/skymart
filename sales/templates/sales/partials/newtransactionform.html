@@ -1,0 +1,150 @@
+<div class="row" id="transactionform">
+
+  <div class="col-6">
+    <div class="row">
+      <div class="text-center">
+        <div class="spinner-border text-primary htmx-indicator" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+    {% if SO.Status == 'O' %}
+    <form class="input-group" method="get" hx-get="{% url 'barcode' SO.id %}" hx-trigger='submit'
+      hx-target="#transactiontable" autocomplete="off" hx-indicator=".htmx-indicator">
+      <input class="form-control" type="number" id="quantity" placeholder="Quantity" name="quantity" value="1"
+        tabindex="-1">
+      <input class="form-control" type="text" id="barcode" placeholder="Barcode" name="barcode" tabindex="-1" autofocus>
+      <button class="btn btn-outline-primary" tabindex="-1">Add</button>
+    </form>
+    <div class="row mt-2 p-3">
+      <input class="form-control" id='payment' type="number" placeholder="Payment" aria-label="Payment" name="payment" class="form-control" hx-get="{% url 'getPayment' SO.id %}"
+          hx-target='#transactiontable' hx-trigger="change" hx-indicator=".htmx-indicator" autocomplete="off" onfocus="setDefault()">
+    </div>
+    {% endif %}
+    <p class='text-primary'>{{ message }}</p>
+    <div class="mb-2">
+      <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=2 %}" tabindex="-1">Print 2in</a>
+      <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=1 %}" tabindex="-1">Print A5</a>
+      <a class="btn btn-primary" href="{% url 'SO' %}" tabindex="-1"><i class="bi bi-plus-square"></i> New
+        Order </a>
+
+      <a class="btn btn-primary" href="#" hx-get="{% url 'SE' SO.id %}" hx-target="#modals-here"
+        class="nav-link text-primary"
+        _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"
+        tabindex="-1">Edit</a>
+
+    </div>
+    <h1>Total : {{ SO.Subtotal|default_if_none:"0" }}{{ SO.Currency }}</h1>
+  </div>
+
+  <div class="col-6">
+    {% if SO.Status == 'O' %}
+    <div>
+      <input class="form-control" type='text' placeholder="search" hx-get="{% url 'getsearchresult' SO.id %}"
+        hx-target='#searchresult' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator" name="search"
+        style="size:large" value="{{ form.initial.Inventory.ProductName }}" tabindex="1" autocomplete="off">
+      {% include 'sales/partials/searchresult.html' %}
+      <form class='form-inline mt-1' method="POST" hx-post="{% url 'newsotransaction' SO.id %}"
+        hx-target='#transactiontable' hx-trigger='submit' hx-swap="outerHTML" autocomplete="off"
+        hx-indicator=".htmx-indicator">
+        {% csrf_token %}
+        {{form.Inventory }}
+        {{form.Quantity }}
+        {{form.Price }}{{ form.SO }}
+        <button class='btn btn-primary mr-1' type='submit'>Submit</button>
+        {{ form.errors }}
+        {% if form.initial.Inventory %}
+        <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button"
+          aria-controls="offcanvasExample">
+          Detail <i class="bi bi-folder2"></i>
+        </a>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+          aria-labelledby="offcanvasExampleLabel">
+          <div class="offcanvas-header">
+            <img class='rounded' src='{{ form.initial.Inventory.Image.url }}' alt='missing'
+              style="height: 80px; width: 106px;display:inline-block" />
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">{{ form.initial.Inventory.ProductName }}</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <div>
+              <div class="btn-group">
+                <a class='btn btn-primary text-white' hx-get="{% url 'stocktable' form.initial.Inventory.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-box2"></i>WHStock</a>
+                <a class='btn btn-primary text-white' hx-get="{% url 'purchasehistory' form.initial.Inventory.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag"></i>Purchase</a>
+                <a class='btn btn-primary text-white' hx-get="{% url 'saleshistory' form.initial.Inventory.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-bag-heart"></i>Sales</a>
+                <a class='btn btn-primary text-white' hx-get="{% url 'editprice' form.initial.Inventory.id %}"
+                  hx-target="#datasheet" hx-swap="outerHTML"><i class="bi bi-tags"></i>Price</a>
+              </div>
+            </div>
+            <div id="datasheet">
+
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </form>
+
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="noRecordOffcanvas"
+     aria-labelledby="noRecordOffcanvasLabel" data-bs-backdrop="static">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title text-danger" id="noRecordOffcanvasLabel">No Record Found</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <p id="noRecordMessage" class="text-danger">X No record found.</p>
+    <button type="button" id="offcanvasOkBtn" class="btn btn-primary" data-bs-dismiss="offcanvas">OK</button>
+  </div>
+</div>
+
+<script>
+htmx.on("noRecordFound", function(evt) {
+    let barcode = evt.detail.barcode;
+
+    // Update message dynamically
+    document.getElementById("noRecordMessage").textContent =
+        "X No record found for barcode: " + barcode;
+
+    // Show Bootstrap offcanvas
+    let offcanvasEl = document.getElementById('noRecordOffcanvas');
+    let bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
+    bsOffcanvas.show();
+});
+</script>
+
+<script>
+  function setDefault() {
+    var input = document.getElementById('payment');
+    if (!input.value) {  // Only set the default value if empty
+      var amount = document.getElementById('Amount');
+      input.value = amount.textContent;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    let offcanvasEl = document.getElementById('noRecordOffcanvas');
+    if (!offcanvasEl) return; // safety check
+
+    // When offcanvas shows ? focus OK button
+    offcanvasEl.addEventListener('shown.bs.offcanvas', function () {
+      let okBtn = document.getElementById('offcanvasOkBtn');
+      if (okBtn) okBtn.focus();
+    });
+
+    // When offcanvas hides ? clear and focus barcode input
+    offcanvasEl.addEventListener('hidden.bs.offcanvas', function () {
+      let barcodeInput = document.getElementById('barcode');
+      if (barcodeInput) {
+        barcodeInput.value = "";
+        barcodeInput.focus();
+      }
+    });
+  });
+</script>

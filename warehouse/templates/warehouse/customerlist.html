@@ -1,0 +1,19 @@
+{% extends "main/base.html" %}{% block title %}Customer List{% endblock title %}
+{% block subnav %}<a class="navbar-brand ml-1" href="{% url 'index' %}" ><i class="bi bi-building"></i>
+    WMS</a>{% endblock %}
+{% block content %}
+<table class='table'>
+    <thead>
+        <th>ID</th>
+        <th>Customer</th>
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr>
+            <td>{{ customer.id}}</td>
+            <td><a href="{% url 'customerdetail' customer.id %}">{{ customer.RelatedName }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
