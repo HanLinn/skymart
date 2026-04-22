@@ -76,7 +76,7 @@ def PO_List_Filter(request):
         PO = paginator.page(1)
     except EmptyPage:
         PO = paginator.page(paginator.num_pages)
-    context={'PO': PO,'last':last}
+    context={'PO': PO,'last':last,'vendor':v}
 
     return render(request,'purchase/partials/POlist.html',context)
 
