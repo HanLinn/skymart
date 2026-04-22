@@ -21,8 +21,8 @@
             <th>Name</th>
             <th class="text-start">Code</th>
             <th class="text-end">Buying</th>
-            <th class="text-end">Kyat</th>
             <th class="text-end">Baht</th>
+            <th class="text-end">Kyat</th>
             <!-- <th>image</th> -->
         </thead>
         <tbody>
@@ -32,8 +32,8 @@
                         _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop" tabindex="-1">{{ product.ProductName }}</a></td>
                     <td class="text-start">{{ product.Barcode }}</td>
                     <td class="text-end">{{ product.BuyingPrice }}</td>
-                    <td class="text-end">{{ product.RetailKyat }}</td>
                     <td class="text-end">{{ product.RetailBaht }}</td>
+                    <td class="text-end">{{ product.RetailKyat }}</td>
                 </tr>
         {% endfor %}
 
