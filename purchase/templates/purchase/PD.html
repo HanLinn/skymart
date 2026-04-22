@@ -8,6 +8,23 @@
         <!-- soft copy container -->
         <div class='col-lg-7 vh-75 overflow-auto'>
             <div class='container-fluid vh-100'>
+                <!-- Navigation buttons -->
+                <div class='row mb-3'>
+                    <div class='col-12'>
+                        {% if prev_po %}
+                        <a class='btn btn-outline-secondary btn-sm' href="{% url 'PD' prev_po.id %}" title="Previous PO"><i class="bi bi-chevron-left"></i> Previous</a>
+                        {% else %}
+                        <button class='btn btn-outline-secondary btn-sm' disabled><i class="bi bi-chevron-left"></i> Previous</button>
+                        {% endif %}
+                        
+                        {% if next_po %}
+                        <a class='btn btn-outline-secondary btn-sm' href="{% url 'PD' next_po.id %}">Next <i class="bi bi-chevron-right"></i></a>
+                        {% else %}
+                        <button class='btn btn-outline-secondary btn-sm' disabled>Next <i class="bi bi-chevron-right"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
+                
                 <div class='row'>
                         <div class='col-6'>
 
@@ -31,6 +48,7 @@
             {% include "purchase/partials/hardcopy.html" %}
         </div>
     </div>
+
 
 
 

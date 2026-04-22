@@ -85,10 +85,19 @@ def PO_Detail(request,id):
     PO = PurchaseOrder.objects.get(id=id)
     form = PTForm(request.POST or None,initial={'PO':id})
     accounts = Account.objects.filter(Vendor = PO.Supplier)
+    
+    # Get next and previous POs for the same vendor
+    vendor_pos = PurchaseOrder.objects.filter(Supplier=PO.Supplier).order_by('-OrderDate')
+    po_list = list(vendor_pos)
+    current_index = po_list.index(PO)
+    
+    next_po = po_list[current_index - 1] if current_index > 0 else None
+    prev_po = po_list[current_index + 1] if current_index < len(po_list) - 1 else None
+    
     if form.is_valid():
         form.save()
         form = PTForm(initial={'PO':id})
-    context = {'PO':PO,'form':form,'accounts':accounts}
+    context = {'PO':PO,'form':form,'accounts':accounts,'next_po':next_po,'prev_po':prev_po}
     return render(request,'purchase/PD.html',context)
 
 @login_required(login_url='/login/')
