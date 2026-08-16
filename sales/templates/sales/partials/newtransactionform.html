@@ -20,6 +20,11 @@
       <input class="form-control" id='payment' type="number" placeholder="Payment" aria-label="Payment" name="payment" class="form-control" hx-get="{% url 'getPayment' SO.id %}"
           hx-target='#transactiontable' hx-trigger="change" hx-indicator=".htmx-indicator" autocomplete="off" onfocus="setDefault()">
     </div>
+    <div class="mt-2">
+      <button id="enable-barcode-sound" type="button" class="btn btn-outline-warning" title="Enable barcode warning sound">
+        <i class="bi bi-volume-up"></i> Enable sound
+      </button>
+    </div>
     {% endif %}
     <p class='text-primary'>{{ message }}</p>
     {% if SO.Status == 'O' %}
@@ -126,12 +131,27 @@ if (!window.skymartBarcodeAlertRegistered) {
 
   function unlockBarcodeAlertTone() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
+    if (!AudioContext) return Promise.resolve(false);
 
     window.skymartBarcodeAudioContext ||= new AudioContext();
-    if (window.skymartBarcodeAudioContext.state === "suspended") {
-      window.skymartBarcodeAudioContext.resume();
+    const audioContext = window.skymartBarcodeAudioContext;
+    if (audioContext.state === "suspended") {
+      return audioContext.resume().then(function () {
+        // A near-silent sound starts the audio engine while this is still a
+        // direct scanner/keyboard gesture. Later alerts can then play sound.
+        const oscillator = audioContext.createOscillator();
+        const volume = audioContext.createGain();
+        volume.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        oscillator.connect(volume);
+        volume.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.01);
+        return true;
+      }).catch(function () {
+        return false;
+      });
     }
+    return Promise.resolve(audioContext.state === "running");
   }
 
   function playBarcodeAlertTone() {
@@ -143,9 +163,11 @@ if (!window.skymartBarcodeAlertRegistered) {
     const volume = audioContext.createGain();
 
     oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(880, startTime);
-    oscillator.frequency.setValueAtTime(660, startTime + 0.18);
-    volume.gain.setValueAtTime(0.08, startTime);
+    oscillator.frequency.setValueAtTime(740, startTime);
+    oscillator.frequency.setValueAtTime(880, startTime + 0.2);
+    volume.gain.setValueAtTime(0.16, startTime);
+    volume.gain.setValueAtTime(0.001, startTime + 0.12);
+    volume.gain.setValueAtTime(0.16, startTime + 0.2);
     volume.gain.exponentialRampToValueAtTime(0.001, startTime + 0.42);
 
     oscillator.connect(volume);
@@ -153,6 +175,25 @@ if (!window.skymartBarcodeAlertRegistered) {
     oscillator.start(startTime);
     oscillator.stop(startTime + 0.42);
   }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.target.matches("#barcode")) {
+      unlockBarcodeAlertTone();
+    }
+  }, true);
+
+  document.addEventListener("click", function (event) {
+    const soundButton = event.target.closest("#enable-barcode-sound");
+    if (!soundButton) return;
+
+    unlockBarcodeAlertTone().then(function (isEnabled) {
+      if (!isEnabled) return;
+      playBarcodeAlertTone();
+      soundButton.classList.remove("btn-outline-warning");
+      soundButton.classList.add("btn-success");
+      soundButton.innerHTML = '<i class="bi bi-volume-up-fill"></i> Sound on';
+    });
+  });
 
   document.addEventListener("submit", function (event) {
     if (event.target.matches('form[hx-get*="barcode"]')) {
