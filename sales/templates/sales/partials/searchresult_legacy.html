@@ -1,0 +1,11 @@
+<div id="searchresult" class="list-group mt-2">
+  {% for result in results %}
+  <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+    hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}?entry=manual" hx-target="#transactionform" hx-trigger="click" hx-swap="outerHTML">
+    <span><strong>{{ result.ProductName }}</strong> <small class="text-muted">({{ result.Unit }})</small></span>
+    <span><span class="badge bg-primary">{{ result.RetailBaht }} B</span> <span class="badge bg-warning text-dark">{{ result.RetailKyat }} K</span> <small>Stock: {{ result.wh_stock }}</small></span>
+  </button>
+  {% empty %}
+  {% if search_text %}<div class="list-group-item text-muted">No matching products found.</div>{% endif %}
+  {% endfor %}
+</div>

@@ -1,66 +1,121 @@
 {% extends "main/base.html" %}
 {% load static %}
 {% load humanize %}
-{% block title %}Sales Invoice{% endblock title %}
+{% block title %}POS · Sales Order {{ SO.id }}{% endblock title %}
 {% block subnav %}
-<a class="navbar-brand ml-2" href="{% url 'salesindex' %}" tabindex="-1"><i class="bi bi-bag-heart"></i>
-    Sales</a>
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}" tabindex="-1"><i class="bi bi-bag-heart"></i> Sales</a>
 {% endblock subnav %}
 {% block content %}
-<div class="container-fluid">
-<div class='container-fluid'>
-    <div class="d-flex flex-row-reverse">
-        {% if next_order != None %}
-        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' next_order %}" tabindex="-1"><i class="bi bi-chevron-right"></i></a></div>
-        {% else %} 
-            <div class="p-2"><button class="btn btn-primary" disabled><i class="bi bi-chevron-right" tabindex="-1"></i></button></div>
-        {% endif %}
-        {% if previous_order != None %}
-        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' previous_order %}" tabindex="-1"><i class="bi bi-chevron-left"></i></a></div>
-        {% else %} 
-        <div class="p-2"><button class="btn btn-primary" tabindex="-1" disabled><i class="bi bi-chevron-left"></i></button></div>
-        {% endif %}
+<style>
+  .pos-page { box-sizing: border-box; max-width: 1500px; height: calc(100dvh - 70px); margin: 0 auto; padding: .45rem; display: flex; flex-direction: column; overflow: hidden; }
+  .pos-header { background: linear-gradient(125deg, #123b63, #176b87); color: #fff; border-radius: .85rem; padding: .65rem .9rem; box-shadow: 0 .5rem 1.25rem rgba(18,59,99,.18); }
+  .pos-header .text-muted { color: rgba(255,255,255,.72) !important; }
+  .pos-header .btn { border-color: rgba(255,255,255,.45); color: #fff; }
+  .pos-header .btn:hover { background: rgba(255,255,255,.16); }
+  .pos-meta-label { color: #aee9ff; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .pos-meta-value { font-size: .85rem; font-weight: 600; }
+  .pos-card { border: 0; border-radius: 1rem; box-shadow: 0 .35rem 1rem rgba(25,42,70,.10); overflow: hidden; }
+  .pos-card-title { font-size: 1rem; font-weight: 700; letter-spacing: .02em; }
+  .pos-cart-table th { background: #f4f7fb; border: 0; color: #667085; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .pos-cart-table td { vertical-align: middle; }
+  .pos-workspace .pos-row-new td { background: #dcfce7 !important; animation: pos-row-pulse 1.4s ease-out; }
+  .pos-workspace .pos-row-updated td { background: #fef3c7 !important; animation: pos-row-pulse 1.4s ease-out; }
+  @keyframes pos-row-pulse { 0% { filter: brightness(.9); } 45% { filter: brightness(1.08); } 100% { filter: brightness(1); } }
+  .pos-total { background: #123b63; color: #fff; border-radius: .75rem; padding: 1rem; }
+  .pos-total-label { font-size: .72rem; opacity: .75; letter-spacing: .08em; text-transform: uppercase; }
+  .pos-total-value { font-size: 1.7rem; font-weight: 800; line-height: 1.1; }
+  .pos-amount-card { border-left: 4px solid #19a974; }
+  .pos-controls .form-control { min-height: 2.45rem; }
+  .pos-controls .btn { min-height: 2.3rem; }
+  .pos-workspace aside .pos-card { background: #fffdf8; border: 1px solid #f0e9dc; }
+  .pos-workspace .pos-scan-kicker { color: #b45309; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+  .pos-workspace .pos-scan-form { border: 2px solid #f59e0b; border-radius: .7rem; padding: .2rem; background: #fff; box-shadow: 0 .35rem .8rem rgba(245,158,11,.14); }
+  .pos-workspace .pos-scan-form #barcode { border: 0; box-shadow: none; font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; }
+  .pos-workspace .pos-scan-form #quantity { max-width: 5.25rem; border: 0; border-right: 1px solid #f1e5cf; box-shadow: none; }
+  .pos-workspace .pos-scan-form .btn { border-radius: .55rem !important; background: #b45309; border-color: #b45309; }
+  .pos-workspace .pos-payment-label { color: #0f766e; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .pos-workspace #payment-input { border: 2px solid #99f6e4; font-size: 1.08rem; font-weight: 800; color: #115e59; }
+  .pos-workspace .pos-action-label { color: #667085; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .pos-workspace #entry-mode-tabs { background: #f4f1ea; border-radius: .75rem; padding: .25rem; }
+  .pos-workspace #entry-mode-tabs .nav-link { color: #6b7280; font-weight: 700; }
+  .pos-workspace #entry-mode-tabs .nav-link.active { background: #123b63; box-shadow: 0 .2rem .5rem rgba(18,59,99,.22); }
+  .pos-workspace .tab-content { display: flex; flex-direction: column; }
+  .pos-workspace #manual-entry { order: -1; }
+  .pos-workspace .pos-top-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+  .pos-workspace .pos-top-action { appearance: none; width: 100%; min-height: 3.35rem; display: flex; align-items: center; gap: .5rem; padding: .4rem .55rem; border: 0; border-radius: .7rem; color: #fff; font-weight: 800; line-height: 1.1; text-align: left; text-decoration: none; box-shadow: 0 .35rem .75rem rgba(18,59,99,.17); }
+  .pos-workspace .pos-top-action small { display: block; margin-bottom: .16rem; color: inherit; font-size: .67rem; font-weight: 700; letter-spacing: .08em; opacity: .78; text-transform: uppercase; }
+  .pos-workspace .pos-print-action { background: linear-gradient(135deg, #1e3a5f, #256b8f); }
+  .pos-workspace .pos-currency-action { background: linear-gradient(135deg, #0f766e, #16a085); }
+  .pos-workspace .pos-action-icon { display: grid; flex: 0 0 2rem; width: 2rem; height: 2rem; place-items: center; border-radius: .55rem; background: rgba(255,255,255,.18); font-size: 1rem; }
+  .pos-workspace #product-search { border: 2px solid #bfdbfe; font-size: 1.05rem; font-weight: 650; }
+  .pos-workspace .pos-manual-form { margin-top: .5rem; padding: .6rem; border: 1px solid #dbeafe; border-radius: .7rem; background: #f8fbff; }
+  .pos-workspace .pos-manual-form label { color: #475467; font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .pos-workspace .pos-manual-form .form-control { border-color: #bfdbfe; font-size: 1.05rem; font-weight: 700; }
+  .pos-workspace .pos-manual-submit { background: #123b63; border-color: #123b63; font-weight: 800; }
+  .pos-workspace .pos-suggestion-list { display: grid; gap: .45rem; padding-top: .6rem; }
+  .pos-workspace .pos-suggestion { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto 1.2rem; align-items: center; gap: .65rem; padding: .6rem .7rem; border: 1px solid #e4e7ec; border-radius: .75rem; background: #fff; color: #1d2939; text-align: left; transition: .15s ease; }
+  .pos-workspace .pos-suggestion:hover, .pos-workspace .pos-suggestion:focus { border-color: #256b8f; background: #f0f9ff; box-shadow: 0 .25rem .65rem rgba(37,107,143,.12); outline: 0; }
+  .pos-workspace .pos-suggestion-main { min-width: 0; }
+  .pos-workspace .pos-suggestion-main strong, .pos-workspace .pos-suggestion-main small { display: block; }
+  .pos-workspace .pos-suggestion-main strong { font-size: .86rem; overflow-wrap: anywhere; }
+  .pos-workspace .pos-suggestion-main small { color: #667085; font-size: .72rem; margin-top: .13rem; }
+  .pos-workspace .pos-suggestion-prices { display: flex; gap: .45rem; font-size: .82rem; font-weight: 800; text-align: right; }
+  .pos-workspace .pos-suggestion-prices span { min-width: 2.7rem; }
+  .pos-workspace .pos-suggestion-prices small { display: block; color: #98a2b3; font-size: .58rem; font-weight: 800; letter-spacing: .06em; }
+  .pos-workspace .pos-suggestion-arrow { color: #256b8f; font-size: 1.35rem; }
+  .pos-workspace .pos-suggestion-empty { padding: .75rem; color: #98a2b3; font-size: .85rem; text-align: center; }
+  .pos-workspace .legacy-total { display: none; }
+  .pos-search-results { max-height: 180px; overflow-y: auto; }
+  .pos-workspace { flex: 1 1 auto; min-height: 0; }
+  .pos-workspace > .row, .pos-workspace section, .pos-workspace aside { height: 100%; min-height: 0; }
+  .pos-workspace .pos-card { min-height: 0; }
+  .pos-workspace section .pos-card { display: flex; flex-direction: column; }
+  .pos-workspace section .card-body { min-height: 0; display: flex; flex-direction: column; }
+  .pos-workspace section .card-body { position: relative; }
+  .pos-workspace section .table-responsive { flex: 1 1 auto; min-height: 0; overflow: auto; }
+  .pos-workspace .pos-scroll-end { position: absolute; right: 1rem; bottom: .7rem; z-index: 2; border-radius: 99px; box-shadow: 0 .25rem .7rem rgba(18,59,99,.28); }
+  .pos-workspace aside .card-body { height: 100%; overflow-y: auto; }
+  @media (max-width: 767.98px) {
+    .pos-page { height: auto; min-height: calc(100dvh - 70px); overflow: visible; padding: .5rem; }
+    .pos-header { border-radius: .75rem; }
+    .pos-total-value { font-size: 1.4rem; }
+    .pos-cart-table { min-width: 680px; }
+  }
+</style>
+
+<main class="pos-page">
+  <header class="pos-header mb-2">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+      <div><div class="text-muted small mb-1">POINT OF SALE</div><h1 class="h3 mb-0">Order #{{ SO.id }}</h1></div>
+      <div class="d-flex gap-2 align-items-center">
+        <form method="post" action="{% url 'set_sales_ui' id=SO.id mode='legacy' %}">
+          {% csrf_token %}
+          <button class="btn btn-sm" type="submit" title="Switch to classic SD"><i class="bi bi-layout-text-window-reverse"></i> Classic</button>
+        </form>
+        {% if previous_order %}<a class="btn btn-sm" href="{% url 'SD' previous_order %}" title="Previous order"><i class="bi bi-chevron-left"></i></a>{% else %}<button class="btn btn-sm" disabled><i class="bi bi-chevron-left"></i></button>{% endif %}
+        {% if next_order %}<a class="btn btn-sm" href="{% url 'SD' next_order %}" title="Next order"><i class="bi bi-chevron-right"></i></a>{% else %}<button class="btn btn-sm" disabled><i class="bi bi-chevron-right"></i></button>{% endif %}
+      </div>
     </div>
-    <div class='row'>
-        <div class='col-6'>
-            <p>SO ID: {{ SO.id }}</p>
-            <p>Date : {{ SO.CreateDate }}</p>
-            <p>Customer : {{ SO.Customer }}</p>
-        </div>
-        <div class='col-6'>
-            <p>Note : {{ SO.Note }}</p>
-            <p>CreateBy : {{ SO.User }}</p>
-            <p>Currency : {{ SO.get_Currency_display }}</p>
-        </div>
+    <div class="row g-2 mt-1">
+      <div class="col-6 col-lg-3"><div class="pos-meta-label">Customer</div><div class="pos-meta-value text-truncate">{{ SO.Customer }}</div></div>
+      <div class="col-6 col-lg-3"><div class="pos-meta-label">Currency</div><div class="pos-meta-value">{{ SO.get_Currency_display }}</div></div>
+      <div class="col-6 col-lg-3"><div class="pos-meta-label">Order status</div><div class="pos-meta-value">{{ SO.get_Status_display }}</div></div>
+      <div class="col-6 col-lg-3"><div class="pos-meta-label">Created</div><div class="pos-meta-value">{{ SO.CreateDate|date:"d M Y · H:i" }}</div></div>
+      {% if SO.Note %}<div class="col-12"><div class="pos-meta-label">Note</div><div class="pos-meta-value">{{ SO.Note }}</div></div>{% endif %}
     </div>
+  </header>
+  {% include "sales/partials/transactiontable.html" %}
+</main>
 
-</div>
-
-{% include "sales/partials/transactiontable.html" %}
-
-</div>
-
-</div>
 <script>
-  // ----------------------------
-  // Convert Amount to Burmese words
-  // ----------------------------
   function numtotext() {
     const amountEl = document.getElementById("subtotal");
     const textEl = document.getElementById("text");
-
-    if (!amountEl || !textEl) return;
-
+    if (!amountEl || !textEl || !window.myanmarNumToWord) return;
     const amount = amountEl.textContent.trim();
-    textEl.innerHTML = amount
-      ? myanmarNumToWord.convertToBurmeseWords(amount)
-      : "";
+    textEl.innerHTML = amount ? myanmarNumToWord.convertToBurmeseWords(amount) : "";
   }
-
-  // Run on initial load
   document.addEventListener("DOMContentLoaded", numtotext);
-
-  // Run after every HTMX swap
   document.body.addEventListener("htmx:afterSwap", numtotext);
 </script>
 {% endblock %}

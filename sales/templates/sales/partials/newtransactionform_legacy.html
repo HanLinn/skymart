@@ -1,0 +1,49 @@
+<div class="row" id="transactionform">
+  <div class="col-6">
+    {% if SO.Status == 'O' %}
+    <form class="input-group" method="get" hx-get="{% url 'barcode' SO.id %}" hx-trigger="submit" hx-target="#transactiontable" autocomplete="off">
+      <input class="form-control" type="number" id="quantity" placeholder="Quantity" name="quantity" value="1">
+      <input class="form-control" type="text" id="barcode" placeholder="Barcode" name="barcode" autofocus>
+      <button class="btn btn-outline-primary">Add</button>
+    </form>
+    <div class="mt-3">
+      <label for="payment-input" class="form-label">Payment</label>
+      <input class="form-control" id="payment-input" type="number" placeholder="Payment" name="payment" hx-get="{% url 'getPayment' SO.id %}" hx-target="#transactiontable" hx-trigger="change" autocomplete="off" onfocus="setLegacyPayment()">
+    </div>
+    {% endif %}
+    <p class="text-primary">{{ message }}</p>
+    {% if SO.Status == 'O' %}
+    <form id="legacy-switch-currency-form" method="post" action="{% url 'switchcurrency' SO.id %}" class="d-none">{% csrf_token %}</form>
+    {% endif %}
+    <div class="btn-group mt-3" role="group" aria-label="Print options">
+      <a class="btn btn-primary" href="{% url 'invoice' id=SO.id p=2 %}">Print 2in</a>
+      <a class="btn btn-primary" href="{% url 'invoice' id=SO.id p=1 %}">Print A5</a>
+    </div>
+    {% if SO.Status == 'O' %}<button type="submit" form="legacy-switch-currency-form" class="btn btn-outline-primary mt-3"><i class="bi bi-currency-exchange"></i> Switch to {% if SO.Currency == 'B' %}Kyat{% else %}Baht{% endif %}</button>{% endif %}
+    <div class="btn-group mt-3" role="group" aria-label="Order actions">
+      <a class="btn btn-primary" href="{% url 'SO' %}"><i class="bi bi-plus-square"></i> New order</a>
+      <a class="btn btn-primary" href="#" hx-get="{% url 'SE' SO.id %}" hx-target="#modals-here" _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop">Edit</a>
+    </div>
+    <h1>Total: {{ SO.Subtotal|default_if_none:"0" }} {{ SO.Currency }}</h1>
+  </div>
+
+  <div class="col-6">
+    {% include 'sales/partials/manualtransactionform_legacy.html' %}
+  </div>
+</div>
+
+<script>
+  function setLegacyPayment() {
+    const input = document.getElementById('payment-input');
+    const subtotal = document.getElementById('subtotal');
+    if (input && !input.value && subtotal) input.value = subtotal.textContent.trim();
+  }
+  if (!window.skymartLegacyBarcodeAlertRegistered) {
+    window.skymartLegacyBarcodeAlertRegistered = true;
+    document.body.addEventListener('noRecordFound', function (event) {
+      window.alert('Product not found for barcode: ' + event.detail.barcode);
+      const barcode = document.getElementById('barcode');
+      if (barcode) { barcode.value = ''; barcode.focus(); }
+    });
+  }
+</script>

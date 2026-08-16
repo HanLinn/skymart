@@ -1,0 +1,38 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Sales Invoice{% endblock title %}
+{% block subnav %}
+<a class="navbar-brand ml-2" href="{% url 'salesindex' %}" tabindex="-1"><i class="bi bi-bag-heart"></i> Sales</a>
+{% endblock subnav %}
+{% block content %}
+<div class="container-fluid">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+      <form method="post" action="{% url 'set_sales_ui' id=SO.id mode='pos' %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-grid-1x2"></i> Use new POS</button>
+      </form>
+      <div class="d-flex flex-row-reverse">
+        {% if next_order %}<div class="p-1"><a class="btn btn-primary" href="{% url 'SD' next_order %}"><i class="bi bi-chevron-right"></i></a></div>{% else %}<div class="p-1"><button class="btn btn-primary" disabled><i class="bi bi-chevron-right"></i></button></div>{% endif %}
+        {% if previous_order %}<div class="p-1"><a class="btn btn-primary" href="{% url 'SD' previous_order %}"><i class="bi bi-chevron-left"></i></a></div>{% else %}<div class="p-1"><button class="btn btn-primary" disabled><i class="bi bi-chevron-left"></i></button></div>{% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6"><p>SO ID: {{ SO.id }}</p><p>Date: {{ SO.CreateDate }}</p><p>Customer: {{ SO.Customer }}</p></div>
+      <div class="col-6"><p>Note: {{ SO.Note }}</p><p>CreateBy: {{ SO.User }}</p><p>Currency: {{ SO.get_Currency_display }}</p></div>
+    </div>
+  </div>
+  {% include "sales/partials/transactiontable_legacy.html" %}
+</div>
+<script>
+  function numtotext() {
+    const amountEl = document.getElementById("subtotal");
+    const textEl = document.getElementById("text");
+    if (!amountEl || !textEl || !window.myanmarNumToWord) return;
+    textEl.innerHTML = myanmarNumToWord.convertToBurmeseWords(amountEl.textContent.trim());
+  }
+  document.addEventListener("DOMContentLoaded", numtotext);
+  document.body.addEventListener("htmx:afterSwap", numtotext);
+</script>
+{% endblock %}

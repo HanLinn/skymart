@@ -1,0 +1,10 @@
+{% if SO.Status == 'O' %}
+<label for="legacy-product-search" class="form-label">Search product</label>
+<input class="form-control" id="legacy-product-search" type="text" placeholder="Search product" hx-get="{% url 'getsearchresult' SO.id %}" hx-target="#searchresult" hx-trigger="keyup changed delay:500ms" name="search" value="{{ form.initial.Inventory.ProductName }}" autocomplete="off">
+{% include 'sales/partials/searchresult_legacy.html' %}
+<form class="form-inline mt-2" method="post" hx-post="{% url 'newsotransaction' SO.id %}" hx-target="#transactiontable" hx-trigger="submit" hx-swap="outerHTML" autocomplete="off">
+  {% csrf_token %}{{ form.Inventory }}{{ form.SO }}{{ form.Quantity }}{{ form.Price }}
+  <button class="btn btn-primary mt-2" type="submit">Submit</button>
+  {{ form.errors }}
+</form>
+{% endif %}

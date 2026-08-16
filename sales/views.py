@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from . models import SalesOrder,SO_Transaction,buyer
 from Product.models import Product,CurrencyRate
@@ -26,6 +26,20 @@ def sales_order_list_queryset(queryset):
         list_subtotal=Coalesce(Sum(line_amount), 0),
         list_total_quantity=Coalesce(Sum('so_transaction__Quantity'), 0),
     )
+
+
+def is_legacy_layout(request):
+    referer = request.headers.get('Referer', '')
+    return '/SD/' in referer and '/POS/' not in referer
+
+
+def transaction_table_template(request):
+    """Keep HTMX updates in the layout from which they were requested."""
+    return 'sales/partials/transactiontable_legacy.html' if is_legacy_layout(request) else 'sales/partials/transactiontable.html'
+
+
+def sales_detail_destination(request):
+    return 'POS' if '/POS/' in request.headers.get('Referer', '') else 'SD'
 
 
 @login_required(login_url='/login/')
@@ -76,6 +90,9 @@ def EditSalesOrder(request,id):
 
 @login_required(login_url='/login/')
 def SalesDetail(request,id):
+    if request.COOKIES.get('sales_ui_mode') == 'pos':
+        return redirect('POS', id=id)
+
     form = STForm(request.POST or None,initial={'SO':id})
     if form.is_valid():
         form.save()
@@ -98,7 +115,19 @@ def SalesDetail(request,id):
     next_order = SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__gt=SO.id).only('id').first()
     previous_order = SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__lt=SO.id).only('id').last()
     context = {'SO':SO, 'form':form, 'next_order':next_order, 'previous_order':previous_order}
-    return render(request,'sales/SD.html',context)
+    return render(request,'sales/SD_legacy.html',context)
+
+
+@login_required(login_url='/login/')
+@require_POST
+def set_sales_ui(request, mode, id):
+    if mode not in {'legacy', 'pos'}:
+        return HttpResponseBadRequest('Unknown sales UI mode.')
+
+    destination = 'POS' if mode == 'pos' else 'SD'
+    response = redirect(destination, id=id)
+    response.set_cookie('sales_ui_mode', mode, max_age=60 * 60 * 24 * 365, samesite='Lax')
+    return response
 
 
 @login_required(login_url='/login/')
@@ -110,7 +139,7 @@ def switchcurrency(request, id):
 
         # Closed orders are historical records and must not be repriced.
         if sales_order.Status != 'O':
-            return redirect('SD', id=id)
+            return redirect(sales_detail_destination(request), id=id)
 
         sales_order.Currency = 'K' if sales_order.Currency == 'B' else 'B'
         sales_order.save(update_fields=['Currency'])
@@ -124,7 +153,7 @@ def switchcurrency(request, id):
                 line.Price = product.RetailKyat if is_retail else product.MemberKyat
             line.save(update_fields=['Price'])
 
-    return redirect('SD', id=id)
+    return redirect(sales_detail_destination(request), id=id)
 
 @login_required(login_url='/login/')
 def SO_List_Filter(request):
@@ -150,12 +179,14 @@ def salesorderlines(request, id):
 def newtransaction(request,id):
     SO = SalesOrder.objects.get(id=id)
     form = STForm(request.POST or None,initial={'SO':id})
+    highlight_line_id = None
     if form.is_valid():
-        form.save()
+        entry = form.save()
+        highlight_line_id = entry.id
         form = STForm(initial={'SO':id})
         redirect('SD',id=id)
-    context={'SO':SO,'form':form}
-    return render(request,'sales/partials/transactiontable.html',context)
+    context={'SO':SO, 'form':form, 'highlight_line_id':highlight_line_id, 'highlight_kind':'new'}
+    return render(request, transaction_table_template(request), context)
 
 @login_required(login_url='/login/')
 def deletetransaction(request,id):
@@ -172,11 +203,12 @@ def geteditform(request,id):
     form = STForm(request.POST or None,instance= t)
     SO = SalesOrder.objects.get(id=t.SO.id)
     if request.method == "POST":
+        entry = None
         if form.is_valid():
-            form.save()
+            entry = form.save()
             form = STForm()
-        context={'SO':SO,'form':form}
-        return render(request,'sales/partials/transactiontable.html',context)
+        context={'SO':SO, 'form':form, 'highlight_line_id':entry.id if entry else None, 'highlight_kind':'updated'}
+        return render(request, transaction_table_template(request), context)
     else:
         context={'SO':SO,'form':form}
         return render(request,'sales/partials/transaction_edit.html',context)
@@ -190,8 +222,9 @@ def getsearchresult(request,id):
     else:
         results =[]
 
-    context = {'results':results,'SO':SO}
-    return render(request,'sales/partials/searchresult.html',context)
+    context = {'results':results, 'SO':SO, 'search_text':search_text}
+    template = 'sales/partials/searchresult_legacy.html' if is_legacy_layout(request) else 'sales/partials/searchresult_pos.html'
+    return render(request, template, context)
 
 @login_required(login_url='/login/')
 def getPayment(request,id):
@@ -207,7 +240,7 @@ def getPayment(request,id):
     form = STForm(request.POST or None,initial={'SO':id})
 
     context = {'form':form,'SO':SO}
-    return render(request,'sales/partials/transactiontable.html',context)
+    return render(request, transaction_table_template(request), context)
 
 @login_required(login_url='/login/')
 def filtertransaction(request,id,p):
@@ -224,8 +257,9 @@ def filtertransaction(request,id,p):
         else:
             price = PL.MemberKyat
     form = STForm(request.POST or None,initial={'SO':id,'Price':price,'Inventory':PL,'Quantity':1})
-    context = {'SO':SO,'form':form}
-    return render(request,'sales/partials/newtransactionform.html',context)
+    context = {'SO':SO, 'form':form, 'manual_mode':request.GET.get('entry') == 'manual'}
+    template = 'sales/partials/newtransactionform_legacy.html' if is_legacy_layout(request) else 'sales/partials/newtransactionform.html'
+    return render(request, template, context)
 
 @login_required(login_url='/login/')
 def newcurrencyrate(request):
@@ -284,7 +318,7 @@ def ImportFromJob(request,sid):
         entry.save()
     SO = SalesOrder.objects.get(id=sid)
     context={'SO':SO,'form':form}
-    return render(request,'sales/partials/transactiontable.html',context)
+    return render(request, transaction_table_template(request), context)
 
 @login_required(login_url='/login/')
 def SalesInvoice(request,id,p):
@@ -307,10 +341,24 @@ def saleshistory(request,id):
 
 @login_required(login_url='/login/')
 def POS(request,id):
-    product = Product.objects.all()[:40]
-    SO = SalesOrder.objects.get(id=id)
-    context = {'product':product,'SO':SO}
-    return render(request,'sales/POS.html',context)
+    SO = SalesOrder.objects.select_related('Customer', 'User').prefetch_related(
+        Prefetch(
+            'so_transaction_set',
+            queryset=SO_Transaction.objects.select_related('Inventory__Unit'),
+        )
+    ).get(id=id)
+    currency_rate = CurrencyRate.objects.last()
+    if currency_rate:
+        for line in SO.so_transaction_set.all():
+            line._currency_rate = currency_rate.Rate / 100
+
+    context = {
+        'SO': SO,
+        'form': STForm(initial={'SO': id}),
+        'next_order': SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__gt=SO.id).only('id').first(),
+        'previous_order': SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__lt=SO.id).only('id').last(),
+    }
+    return render(request, 'sales/SD.html', context)
 
 import json
 from django.http import HttpResponse
@@ -347,8 +395,14 @@ def Barcode(request, id):
             st.save()
 
         message = 'successfully added'
-        context = {'SO': sales, 'message': message, 'form': form}
-        return render(request, 'sales/partials/transactiontable.html', context)
+        context = {
+            'SO': sales,
+            'message': message,
+            'form': form,
+            'highlight_line_id': st.id,
+            'highlight_kind': 'new' if created else 'updated',
+        }
+        return render(request, transaction_table_template(request), context)
 
     else:
         response = HttpResponse(status=204)  # <-- important!

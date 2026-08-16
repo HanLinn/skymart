@@ -1,0 +1,19 @@
+{% if SO.Status == 'O' %}
+<div>
+  <label class="pos-action-label mb-1" for="product-search">Find or add manually</label>
+  <input class="form-control" id="product-search" type="text" placeholder="Search product name or barcode" hx-get="{% url 'getsearchresult' SO.id %}"
+    hx-target="#searchresult" hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator" name="search"
+    value="{{ form.initial.Inventory.ProductName }}" tabindex="1" autocomplete="off">
+  <div class="pos-search-results">{% include 'sales/partials/searchresult_pos.html' %}</div>
+  <form class="pos-manual-form" method="POST" hx-post="{% url 'newsotransaction' SO.id %}"
+    hx-target="#transactiontable" hx-trigger="submit" hx-swap="outerHTML" autocomplete="off" hx-indicator=".htmx-indicator">
+    {% csrf_token %}{{ form.Inventory }}{{ form.SO }}
+    <div class="row g-2">
+      <div class="col-6"><label for="Quantity" class="form-label">Quantity</label>{{ form.Quantity }}</div>
+      <div class="col-6"><label for="Price" class="form-label">Unit price</label>{{ form.Price }}</div>
+    </div>
+    <button class="btn btn-primary pos-manual-submit w-100 mt-3" type="submit"><i class="bi bi-bag-plus"></i> Add to cart</button>
+    {{ form.errors }}
+  </form>
+</div>
+{% endif %}
