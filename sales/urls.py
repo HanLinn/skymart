@@ -6,6 +6,7 @@ urlpatterns = [
     path('SO',views.NewSalesOrder,name='SO'),
     path('SE/<int:id>',views.EditSalesOrder,name='SE'),
     path('SD/<int:id>',views.SalesDetail,name='SD'),
+    path('SD/<int:id>/lines/',views.salesorderlines,name='salesorderlines'),
     path('SD/<int:id>/switch-currency/',views.switchcurrency,name='switchcurrency'),
     path('newsotransaction/<int:id>',views.newtransaction,name='newsotransaction'),
     path('deletetransaction/<int:id>',views.deletetransaction,name='sodeletetransaction'),

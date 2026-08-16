@@ -1,0 +1,24 @@
+<ul class="list-group">
+  <li class="list-group-item list-group-item-success">
+    <div class="row">
+      <div class="col">{{ SO.User }}</div>
+    </div>
+  </li>
+  {% for line in SO.so_transaction_set.all %}
+  <li class="list-group-item list-group-item-primary">
+    <div class="row">
+      <div class="col">{{ forloop.counter }}</div>
+      <div class="col text-start">{{ line.Inventory }}</div>
+      <div class="col">{{ line.Quantity }} {{ line.Inventory.Unit }}</div>
+      <div class="col text-end">{{ line.Price }}</div>
+      <div class="col text-end">{{ line.Amount }}</div>
+    </div>
+  </li>
+  {% endfor %}
+  <li class="list-group-item list-group-item-success">
+    <div class="row">
+      <div class="col">Total Qty: {{ SO.total_quantity }}</div>
+      <div class="col text-end">Total: {{ SO.Subtotal|default_if_none:"0" }}</div>
+    </div>
+  </li>
+</ul>

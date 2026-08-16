@@ -131,32 +131,21 @@ if (!window.skymartBarcodeAlertRegistered) {
 
   function unlockBarcodeAlertTone() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return Promise.resolve(false);
+    if (!AudioContext) return null;
 
     window.skymartBarcodeAudioContext ||= new AudioContext();
     const audioContext = window.skymartBarcodeAudioContext;
     if (audioContext.state === "suspended") {
-      return audioContext.resume().then(function () {
-        // A near-silent sound starts the audio engine while this is still a
-        // direct scanner/keyboard gesture. Later alerts can then play sound.
-        const oscillator = audioContext.createOscillator();
-        const volume = audioContext.createGain();
-        volume.gain.setValueAtTime(0.0001, audioContext.currentTime);
-        oscillator.connect(volume);
-        volume.connect(audioContext.destination);
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.01);
-        return true;
-      }).catch(function () {
-        return false;
-      });
+      // Keep this call inside the user's click/scan gesture. Browsers can
+      // otherwise suppress audio resumed asynchronously after the gesture.
+      audioContext.resume().catch(function () {});
     }
-    return Promise.resolve(audioContext.state === "running");
+    return audioContext;
   }
 
   function playBarcodeAlertTone() {
     const audioContext = window.skymartBarcodeAudioContext;
-    if (!audioContext || audioContext.state !== "running") return;
+    if (!audioContext || audioContext.state === "closed") return;
 
     const startTime = audioContext.currentTime;
     const oscillator = audioContext.createOscillator();
@@ -186,13 +175,12 @@ if (!window.skymartBarcodeAlertRegistered) {
     const soundButton = event.target.closest("#enable-barcode-sound");
     if (!soundButton) return;
 
-    unlockBarcodeAlertTone().then(function (isEnabled) {
-      if (!isEnabled) return;
-      playBarcodeAlertTone();
-      soundButton.classList.remove("btn-outline-warning");
-      soundButton.classList.add("btn-success");
-      soundButton.innerHTML = '<i class="bi bi-volume-up-fill"></i> Sound on';
-    });
+    if (!unlockBarcodeAlertTone()) return;
+    // Start the test beep during the click itself, not in a Promise callback.
+    playBarcodeAlertTone();
+    soundButton.classList.remove("btn-outline-warning");
+    soundButton.classList.add("btn-success");
+    soundButton.innerHTML = '<i class="bi bi-volume-up-fill"></i> Sound on';
   });
 
   document.addEventListener("submit", function (event) {

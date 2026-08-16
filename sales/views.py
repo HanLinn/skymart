@@ -4,7 +4,8 @@ from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from . models import SalesOrder,SO_Transaction,buyer
 from Product.models import Product,CurrencyRate
 from . forms import SalesOrderForm,STForm,CurrencyRateForm,CustomerForm
-from django.db.models import Q,Sum,Count,F,Prefetch
+from django.db.models import Q,Sum,Count,F,Prefetch,ExpressionWrapper,IntegerField
+from django.db.models.functions import Coalesce
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_POST
@@ -15,10 +16,22 @@ import io
 import openpyxl
 
 # Create your views here.
+def sales_order_list_queryset(queryset):
+    """Return list-ready orders without loading hidden transaction rows."""
+    line_amount = ExpressionWrapper(
+        F('so_transaction__Price') * F('so_transaction__Quantity'),
+        output_field=IntegerField(),
+    )
+    return queryset.select_related('Customer').annotate(
+        list_subtotal=Coalesce(Sum(line_amount), 0),
+        list_total_quantity=Coalesce(Sum('so_transaction__Quantity'), 0),
+    )
+
+
 @login_required(login_url='/login/')
 def SalesIndex(request):
     customer = buyer.objects.all().order_by('Customer_Name')
-    SO_list = SalesOrder.objects.all().order_by('-id')
+    SO_list = sales_order_list_queryset(SalesOrder.objects.all()).order_by('-id')
     page = request.GET.get('page',1)
     paginator = Paginator(SO_list,30)
     last = paginator.num_pages
@@ -116,9 +129,22 @@ def switchcurrency(request, id):
 @login_required(login_url='/login/')
 def SO_List_Filter(request):
     c = request.GET.get('customer')
-    SO_list = SalesOrder.objects.filter(Customer=c).order_by('-id')[:40]
+    SO_list = sales_order_list_queryset(SalesOrder.objects.filter(Customer=c)).order_by('-id')[:40]
     context = {'SO' : SO_list}
     return render(request,'sales/partials/SOlist.html',context)
+
+
+@login_required(login_url='/login/')
+def salesorderlines(request, id):
+    sales_order = SalesOrder.objects.select_related('User').prefetch_related(
+        Prefetch(
+            'so_transaction_set',
+            queryset=SO_Transaction.objects.select_related('Inventory__Unit'),
+        )
+    ).get(id=id)
+    sales_order.total_quantity = sum(line.Quantity for line in sales_order.so_transaction_set.all())
+    context = {'SO': sales_order}
+    return render(request, 'sales/partials/salesorderlines.html', context)
 
 @login_required(login_url='/login/')
 def newtransaction(request,id):

@@ -16,68 +16,23 @@
                         _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop">{{ o.Customer }}</a>
                     </div>
                     <div class="col text-end">
-                        {{ o.Subtotal|default_if_none:"0" }} {{ o.Currency }}
+                        {{ o.list_subtotal }} {{ o.Currency }}
                     </div>
                     <div class="col">
                         <div class="row">
                             {% if o.Status == 'O' %}
-                            <div class="col-5"><a class="btn btn-danger" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="list-home"><i class="bi bi-chevron-compact-down"></i></a>
+                            <div class="col-5"><a class="btn btn-danger" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="S{{o.id}}"
+                                hx-get="{% url 'salesorderlines' o.id %}" hx-target="#S{{o.id}}" hx-trigger="click once" hx-swap="innerHTML"><i class="bi bi-chevron-compact-down"></i></a>
                             {% else %} 
-                            <div class="col-5"><a class="btn btn-success" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="list-home"><i class="bi bi-chevron-compact-down"></i></a>
+                            <div class="col-5"><a class="btn btn-success" data-bs-toggle="collapse" href="#S{{o.id}}" role="tab" aria-controls="S{{o.id}}"
+                                hx-get="{% url 'salesorderlines' o.id %}" hx-target="#S{{o.id}}" hx-trigger="click once" hx-swap="innerHTML"><i class="bi bi-chevron-compact-down"></i></a>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </li>
             <li class="list-group-item collapse" id="S{{ o.id }}">
-                <ul class="list-group">
-                    <li class="list-group-item list-group-item-success">
-                        <div class="row">
-                            <div class="col">
-                                {% if o.Job != None %}
-                                <a href="{% url 'jobdetail' o.Job.id %}">J-{{ o.Job }}</a>
-                                {% endif %}
-                            </div>
-                            <div class="col">
-                                {{ o.User }}
-                            </div>
-                        </div>
-                    </li>
-                    {% for i in o.so_transaction_set.all %} 
-                    <li class="list-group-item list-group-item-primary">
-
-                        <div class="row">
-                            <div class="col">
-                                {{ forloop.counter }}
-                            </div>
-                            <div class="col text-start">
-                                {{ i.Inventory }}
-                            </div>
-                            <div class="col">
-                                {{ i.Quantity }} {{ i.Inventory.Unit }}
-                            </div>
-                            <div class="col text-end">
-                                {{ i.Price }}
-                            </div>
-                            <div class="col text-end">
-                                {{ i.Amount }}
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item list-group-item-success">
-                        <div class="row">
-                            <div class="row">
-                                <div class="col">
-                                    Total Qty: {{ o.totalqty }}
-                                </div>
-                                <div class="col">
-                                    <div class="text-end">Total: {{ o.Subtotal }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                <div class="text-center text-muted py-2">Loading order details…</div>
             </li>
 
 
