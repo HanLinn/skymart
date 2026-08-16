@@ -10,13 +10,13 @@
 <div class="container-fluid">
 <div class='container-fluid'>
     <div class="d-flex flex-row-reverse">
-        {% if SO.next != None %}
-        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' SO.next %}" tabindex="-1"><i class="bi bi-chevron-right"></i></a></div>
+        {% if next_order != None %}
+        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' next_order %}" tabindex="-1"><i class="bi bi-chevron-right"></i></a></div>
         {% else %} 
             <div class="p-2"><button class="btn btn-primary" disabled><i class="bi bi-chevron-right" tabindex="-1"></i></button></div>
         {% endif %}
-        {% if SO.prev != None %}
-        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' SO.prev %}" tabindex="-1"><i class="bi bi-chevron-left"></i></a></div>
+        {% if previous_order != None %}
+        <div class="p-2"><a class="btn btn-primary" href="{% url 'SD' previous_order %}" tabindex="-1"><i class="bi bi-chevron-left"></i></a></div>
         {% else %} 
         <div class="p-2"><button class="btn btn-primary" tabindex="-1" disabled><i class="bi bi-chevron-left"></i></button></div>
         {% endif %}

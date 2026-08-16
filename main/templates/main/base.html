@@ -78,6 +78,14 @@
     <a id='search' class="nav-link active text-primary text-center border border-primary rounded-pill" data-bs-toggle="offcanvas" href="#offcanvas" role="button" aria-controls="offcanvas" onclick="document.getElementById('unisearch').focus();" style='width:250px' tabindex="-1">
       <span>Search type /</span> <i class="bi bi-search"></i></i>
     </a>
+    {% if user.is_authenticated %}
+    <div class="btn-group ms-auto me-2" role="group" aria-label="Quick sales">
+      <a id='baht' class="btn btn-info text-white" href="{% url 'quicksales' c=1 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/thailand.png" alt="Thailand"/>
+        Baht</a>
+      <a id='kyat' class="btn btn-light border" href="{% url 'quicksales' c=2 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/myanmar.png" alt="Myanmar"/>
+        Kyat</a>
+    </div>
+    {% endif %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -164,14 +172,6 @@
             <a class="nav-link" href="{% url 'newcustomer' %}"><i class="bi bi-person-plus" tabindex="-1"></i> New Customer</a>
           </div>
         </li> -->
-        <li class="nav-item">
-          <a id='baht' class="nav-link active bg-info text-white" href="{% url 'quicksales' c=1 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/thailand.png" alt="thailand"/>
-            Baht (ctrl+,)</a>
-        </li>
-        <li class="nav-item">
-          <a id='kyat' class="nav-link active bg-white" href="{% url 'quicksales' c=2 %}" tabindex="-1"><img width="24" height="24" src="https://img.icons8.com/color/48/myanmar.png" alt="myanmar"/>
-            Kyat (ctrl+.)</a>
-        </li>
         <li class="nav-item dropdown active">
           <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-haspopup="true"
             aria-expanded="false" tabindex="-1"><i class="bi bi-person-square"></i> {{ user }}</a>

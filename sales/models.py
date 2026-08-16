@@ -40,8 +40,17 @@ class SalesOrder(models.Model):
         return prev
 
     def Subtotal(self):
-        sub = self.so_transaction_set.all().aggregate(s=Sum(F('Price')*F('Quantity')))
-        return sub['s']
+        if hasattr(self, '_subtotal_value'):
+            return self._subtotal_value
+
+        # Reuse the transaction list when the view has prefetched it.
+        prefetched_lines = getattr(self, '_prefetched_objects_cache', {}).get('so_transaction_set')
+        if prefetched_lines is not None:
+            self._subtotal_value = sum(line.Price * line.Quantity for line in prefetched_lines)
+        else:
+            sub = self.so_transaction_set.all().aggregate(s=Sum(F('Price') * F('Quantity')))
+            self._subtotal_value = sub['s']
+        return self._subtotal_value
 
     def Refund(self):
         total = self.Subtotal()
@@ -70,7 +79,12 @@ class SO_Transaction(models.Model):
         return amount
 
     def Profit(self):
-        rate = CurrencyRate.objects.last().Rate/100
+        if hasattr(self, '_profit_value'):
+            return self._profit_value
+
+        rate = getattr(self, '_currency_rate', None)
+        if rate is None:
+            rate = CurrencyRate.objects.last().Rate / 100
         cost = self.Inventory.Cost
         buying = int(self.Inventory.BuyingPrice)
         if cost == None:
@@ -85,8 +99,8 @@ class SO_Transaction(models.Model):
 
             if self.SO.Currency == 'K':
                 capital = ceil(capital /rate / 50) * 50
-        sub = self.Price - capital
-        return sub
+        self._profit_value = self.Price - capital
+        return self._profit_value
 
 
 type=[('D','Debit'),('C','Credit')]
@@ -116,4 +130,3 @@ class Account(models.Model):
             d = debit['d']
         balance = c - d
         return balance
-

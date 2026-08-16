@@ -4,7 +4,7 @@ from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from . models import SalesOrder,SO_Transaction,buyer
 from Product.models import Product,CurrencyRate
 from . forms import SalesOrderForm,STForm,CurrencyRateForm,CustomerForm
-from django.db.models import Q,Sum,Count,F
+from django.db.models import Q,Sum,Count,F,Prefetch
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_POST
@@ -63,12 +63,28 @@ def EditSalesOrder(request,id):
 
 @login_required(login_url='/login/')
 def SalesDetail(request,id):
-    SO = SalesOrder.objects.get(id=id)
     form = STForm(request.POST or None,initial={'SO':id})
     if form.is_valid():
         form.save()
         form = STForm(initial={'SO':id})
-    context = {'SO':SO,'form':form}
+
+    SO = SalesOrder.objects.select_related('Customer', 'User').prefetch_related(
+        Prefetch(
+            'so_transaction_set',
+            queryset=SO_Transaction.objects.select_related('Inventory__Unit'),
+        )
+    ).get(id=id)
+
+    # Profit is displayed for every line. Fetch the current rate once instead
+    # of allowing each line's Profit method to issue the same query.
+    currency_rate = CurrencyRate.objects.last()
+    if currency_rate:
+        for line in SO.so_transaction_set.all():
+            line._currency_rate = currency_rate.Rate / 100
+
+    next_order = SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__gt=SO.id).only('id').first()
+    previous_order = SalesOrder.objects.filter(Customer_id=SO.Customer_id, id__lt=SO.id).only('id').last()
+    context = {'SO':SO, 'form':form, 'next_order':next_order, 'previous_order':previous_order}
     return render(request,'sales/SD.html',context)
 
 
