@@ -22,17 +22,32 @@
     </div>
     {% endif %}
     <p class='text-primary'>{{ message }}</p>
-    <div class="mb-2">
-      <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=2 %}" tabindex="-1">Print 2in</a>
-      <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=1 %}" tabindex="-1">Print A5</a>
-      <a class="btn btn-primary" href="{% url 'SO' %}" tabindex="-1"><i class="bi bi-plus-square"></i> New
-        Order </a>
-
-      <a class="btn btn-primary" href="#" hx-get="{% url 'SE' SO.id %}" hx-target="#modals-here"
-        class="nav-link text-primary"
-        _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"
-        tabindex="-1">Edit</a>
-
+    {% if SO.Status == 'O' %}
+    <form id="switch-currency-form" method="post" action="{% url 'switchcurrency' SO.id %}" class="d-none">
+      {% csrf_token %}
+    </form>
+    {% endif %}
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <div class="btn-group" role="group" aria-label="Print options">
+        <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=2 %}" tabindex="-1">Print 2in</a>
+        <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=1 %}" tabindex="-1">Print A5</a>
+      </div>
+      {% if SO.Status == 'O' %}
+      <div class="btn-group" role="group" aria-label="Currency action">
+        <button type="submit" form="switch-currency-form" class="btn btn-outline-primary" tabindex="-1">
+          <i class="bi bi-currency-exchange"></i>
+          Switch to {% if SO.Currency == 'B' %}Kyat{% else %}Baht{% endif %}
+        </button>
+      </div>
+      {% endif %}
+      <div class="btn-group" role="group" aria-label="Order actions">
+        <a class="btn btn-primary" href="{% url 'SO' %}" tabindex="-1"><i class="bi bi-plus-square"></i> New
+          Order </a>
+        <a class="btn btn-primary" href="#" hx-get="{% url 'SE' SO.id %}" hx-target="#modals-here"
+          class="nav-link text-primary"
+          _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop"
+          tabindex="-1">Edit</a>
+      </div>
     </div>
     <h1>Total : {{ SO.Subtotal|default_if_none:"0" }}{{ SO.Currency }}</h1>
   </div>
@@ -92,31 +107,86 @@
   </div>
 
 </div>
-<div class="offcanvas offcanvas-bottom" tabindex="-1" id="noRecordOffcanvas"
-     aria-labelledby="noRecordOffcanvasLabel" data-bs-backdrop="static">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title text-danger" id="noRecordOffcanvasLabel">No Record Found</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+<dialog id="barcode-not-found-dialog" class="border-0 rounded-3 p-0 shadow-lg" aria-labelledby="barcode-not-found-title">
+  <div class="alert alert-danger mb-0 p-4" role="alert">
+    <h4 id="barcode-not-found-title" class="alert-heading fw-bold mb-2">
+      <i class="bi bi-exclamation-triangle-fill"></i> Barcode not found
+    </h4>
+    <p id="barcode-not-found-message" class="fw-bold mb-4"></p>
+    <form method="dialog" class="text-end">
+      <button type="submit" class="btn btn-danger fw-bold" autofocus>OK, check barcode</button>
+    </form>
   </div>
-  <div class="offcanvas-body">
-    <p id="noRecordMessage" class="text-danger">X No record found.</p>
-    <button type="button" id="offcanvasOkBtn" class="btn btn-primary" data-bs-dismiss="offcanvas">OK</button>
-  </div>
-</div>
+</dialog>
 
 <script>
-htmx.on("noRecordFound", function(evt) {
-    let barcode = evt.detail.barcode;
+if (!window.skymartBarcodeAlertRegistered) {
+  window.skymartBarcodeAlertRegistered = true;
 
-    // Update message dynamically
-    document.getElementById("noRecordMessage").textContent =
-        "X No record found for barcode: " + barcode;
+  function unlockBarcodeAlertTone() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
 
-    // Show Bootstrap offcanvas
-    let offcanvasEl = document.getElementById('noRecordOffcanvas');
-    let bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
-    bsOffcanvas.show();
-});
+    window.skymartBarcodeAudioContext ||= new AudioContext();
+    if (window.skymartBarcodeAudioContext.state === "suspended") {
+      window.skymartBarcodeAudioContext.resume();
+    }
+  }
+
+  function playBarcodeAlertTone() {
+    const audioContext = window.skymartBarcodeAudioContext;
+    if (!audioContext || audioContext.state !== "running") return;
+
+    const startTime = audioContext.currentTime;
+    const oscillator = audioContext.createOscillator();
+    const volume = audioContext.createGain();
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(880, startTime);
+    oscillator.frequency.setValueAtTime(660, startTime + 0.18);
+    volume.gain.setValueAtTime(0.08, startTime);
+    volume.gain.exponentialRampToValueAtTime(0.001, startTime + 0.42);
+
+    oscillator.connect(volume);
+    volume.connect(audioContext.destination);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.42);
+  }
+
+  document.addEventListener("submit", function (event) {
+    if (event.target.matches('form[hx-get*="barcode"]')) {
+      unlockBarcodeAlertTone();
+    }
+  }, true);
+
+  document.body.addEventListener("noRecordFound", function (event) {
+    const barcode = event.detail.barcode;
+    const barcodeInput = document.getElementById("barcode");
+    const dialog = document.getElementById("barcode-not-found-dialog");
+    const message = document.getElementById("barcode-not-found-message");
+
+    if (!dialog || !message) {
+      window.alert(`Product not found for barcode: ${barcode}\n\nPlease check the barcode before continuing.`);
+      return;
+    }
+
+    message.textContent = `No product matches barcode: ${barcode}`;
+    playBarcodeAlertTone();
+    dialog.oncancel = function (closeEvent) {
+      closeEvent.preventDefault();
+    };
+    dialog.onclose = function () {
+      if (barcodeInput) {
+        barcodeInput.value = "";
+        barcodeInput.focus();
+      }
+    };
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+  });
+}
 </script>
 
 <script>
@@ -128,23 +198,4 @@ htmx.on("noRecordFound", function(evt) {
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    let offcanvasEl = document.getElementById('noRecordOffcanvas');
-    if (!offcanvasEl) return; // safety check
-
-    // When offcanvas shows ? focus OK button
-    offcanvasEl.addEventListener('shown.bs.offcanvas', function () {
-      let okBtn = document.getElementById('offcanvasOkBtn');
-      if (okBtn) okBtn.focus();
-    });
-
-    // When offcanvas hides ? clear and focus barcode input
-    offcanvasEl.addEventListener('hidden.bs.offcanvas', function () {
-      let barcodeInput = document.getElementById('barcode');
-      if (barcodeInput) {
-        barcodeInput.value = "";
-        barcodeInput.focus();
-      }
-    });
-  });
 </script>

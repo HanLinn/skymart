@@ -7,6 +7,8 @@ from . forms import SalesOrderForm,STForm,CurrencyRateForm,CustomerForm
 from django.db.models import Q,Sum,Count,F
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_POST
+from django.db import transaction
 from warehouse.models import Transaction
 from datetime import datetime
 import io
@@ -68,6 +70,32 @@ def SalesDetail(request,id):
         form = STForm(initial={'SO':id})
     context = {'SO':SO,'form':form}
     return render(request,'sales/SD.html',context)
+
+
+@login_required(login_url='/login/')
+@require_POST
+def switchcurrency(request, id):
+    """Toggle an open sales order and reprice all of its line items."""
+    with transaction.atomic():
+        sales_order = SalesOrder.objects.select_for_update().get(id=id)
+
+        # Closed orders are historical records and must not be repriced.
+        if sales_order.Status != 'O':
+            return redirect('SD', id=id)
+
+        sales_order.Currency = 'K' if sales_order.Currency == 'B' else 'B'
+        sales_order.save(update_fields=['Currency'])
+
+        is_retail = sales_order.Customer.Pricelist == '1'
+        for line in sales_order.so_transaction_set.select_related('Inventory'):
+            product = line.Inventory
+            if sales_order.Currency == 'B':
+                line.Price = product.RetailBaht if is_retail else product.MemberBaht
+            else:
+                line.Price = product.RetailKyat if is_retail else product.MemberKyat
+            line.save(update_fields=['Price'])
+
+    return redirect('SD', id=id)
 
 @login_required(login_url='/login/')
 def SO_List_Filter(request):
@@ -251,8 +279,11 @@ from django.http import HttpResponse, HttpResponseNotFound
 
 @login_required(login_url='/login/')
 def Barcode(request, id):
-    barcode = request.GET.get('barcode')
-    quantity = int(request.GET.get('quantity'))
+    barcode = (request.GET.get('barcode') or '').strip()
+    try:
+        quantity = int(request.GET.get('quantity', 1))
+    except (TypeError, ValueError):
+        quantity = 1
     sales = SalesOrder.objects.get(id=id)
     form = STForm(request.POST or None, initial={'SO': id})
 
@@ -337,5 +368,3 @@ def export_to_excel(request):
     response['Content-Disposition'] = 'attachment; filename="data_export.xlsx"'
 
     return response
-
-
