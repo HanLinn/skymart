@@ -3,7 +3,7 @@
   <button type="button" class="pos-suggestion" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}?entry=manual"
     hx-target="#transactionform" hx-trigger="click" hx-swap="outerHTML" hx-indicator=".htmx-indicator">
     <span class="pos-suggestion-main"><strong>{{ result.ProductName }}</strong><small>{{ result.Unit }} · Stock {{ result.wh_stock }}</small></span>
-    <span class="pos-suggestion-prices"><span><small>THB</small>{{ result.RetailBaht }}</span><span><small>MMK</small>{{ result.RetailKyat }}</span></span>
+    <span class="pos-suggestion-prices"><span><small>Buy</small>{{ result.BuyingPrice }}</span><span><small>THB</small>{{ result.RetailBaht }}</span><span><small>MMK</small>{{ result.RetailKyat }}</span></span>
     <i class="bi bi-arrow-right-short pos-suggestion-arrow"></i>
   </button>
   {% empty %}

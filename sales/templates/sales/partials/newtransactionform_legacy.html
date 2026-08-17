@@ -16,8 +16,7 @@
     <form id="legacy-switch-currency-form" method="post" action="{% url 'switchcurrency' SO.id %}" class="d-none">{% csrf_token %}</form>
     {% endif %}
     <div class="btn-group mt-3" role="group" aria-label="Print options">
-      <a class="btn btn-primary" href="{% url 'invoice' id=SO.id p=2 %}">Print 2in</a>
-      <a class="btn btn-primary" href="{% url 'invoice' id=SO.id p=1 %}">Print A5</a>
+      <a class="btn btn-primary" href="{% url 'invoice' id=SO.id %}">Print 2in</a>
     </div>
     {% if SO.Status == 'O' %}<button type="submit" form="legacy-switch-currency-form" class="btn btn-outline-primary mt-3"><i class="bi bi-currency-exchange"></i> Switch to {% if SO.Currency == 'B' %}Kyat{% else %}Baht{% endif %}</button>{% endif %}
     <div class="btn-group mt-3" role="group" aria-label="Order actions">

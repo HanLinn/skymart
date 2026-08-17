@@ -14,7 +14,7 @@
     </form>
     {% endif %}
     <div class="pos-top-actions mb-3">
-      <a class="pos-top-action pos-print-action" href="{% url 'invoice' id=SO.id p=2 %}" tabindex="-1">
+      <a class="pos-top-action pos-print-action" href="{% url 'invoice' id=SO.id %}" tabindex="-1">
         <span class="pos-action-icon"><i class="bi bi-printer-fill"></i></span>
         <span><small>Receipt</small>Print 2in</span>
       </a>
@@ -52,9 +52,6 @@
     <p class='text-primary'>{{ message }}</p>
     <div class="pos-action-label mt-4 mb-2">Order tools</div>
     <div class="d-flex flex-wrap gap-2 mb-2">
-      <div class="btn-group" role="group" aria-label="Print options">
-        <a class='btn btn-primary' href="{% url 'invoice' id=SO.id p=1 %}" tabindex="-1">Print A5</a>
-      </div>
       <div class="btn-group" role="group" aria-label="Order actions">
         <a class="btn btn-primary" href="{% url 'SO' %}" tabindex="-1"><i class="bi bi-plus-square"></i> New
           Order </a>

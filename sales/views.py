@@ -323,9 +323,9 @@ def ImportFromJob(request,sid):
     return render(request, transaction_table_template(request), context)
 
 @login_required(login_url='/login/')
-def SalesInvoice(request,id,p):
+def SalesInvoice(request,id):
     SO = SalesOrder.objects.get(id=id)
-    context = {'SO' : SO,'p':p}
+    context = {'SO' : SO}
     return render(request,'sales/S_Invoice.html',context)
 
 @login_required(login_url='/login/')
