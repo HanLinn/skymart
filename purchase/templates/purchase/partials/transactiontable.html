@@ -22,14 +22,14 @@
                 <td class='text-end'>{{ i.Price }}</td>
                 <td class='text-end'>{{ i.Amount }}</td>
                 <td>
-                    <div class="d-grid gap-2 d-md-block">
-                        <form method="post">{% csrf_token %}<button hx-confirm="Are you sure?" class='btn btn-danger'
-                                type="button"
-                                hx-post="{% url 'podeletetransaction' i.id %}" hx-target='#t-{{ i.id }}' hx-swap="
-                                outerHTML"><i class="bi bi-trash3"></i></button></form>
-                        <button class="btn btn-primary" hx-get="{% url 'poedittransaction' id=i.id %}"
-                            hx-target='#t-{{ i.id }}' hx-swap='outerHTML'><i class="bi bi-pencil-square"></i></button>
-                    </div>
+                    <form method="post" class="d-inline">{% csrf_token %}
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Transaction actions">
+                            <button hx-confirm="Are you sure?" class="btn btn-outline-danger" type="button"
+                                hx-post="{% url 'podeletetransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML" title="Delete item"><i class="bi bi-trash3"></i></button>
+                            <button class="btn btn-outline-primary" type="button" hx-get="{% url 'poedittransaction' id=i.id %}"
+                                hx-target="#t-{{ i.id }}" hx-swap="outerHTML" title="Edit item"><i class="bi bi-pencil-square"></i></button>
+                        </div>
+                    </form>
                 </td>
             </tr>
 
@@ -46,40 +46,6 @@
     </table>
 
     {% include 'purchase/partials/newtransactionform.html' %}
+    <div class="pd-entry-scroll-space" aria-hidden="true"></div>
 
-    <div>
-        <table class="table table-responsive-sm table-striped">
-            <thead>
-                <th>နေ့စွဲ</th>
-                <th>Type</th>
-                <th class="text-end">Amount</th>
-                <th class="text-end">ကျန်ငွေ</th>
-                <th>Note</th>
-                <th>file</th>
-            </thead>
-            <tbody>
-                {% for account in accounts %}
-                <tr>
-                    <td>{{ account.AccountDate|date:"d/m/Y" }}</td>
-                    <td>{{ account.get_Type_display }}</td>
-                    <td class="text-end">{{ account.Amount }}</td>
-                    <td class="text-end"><b>{{ account.balance }}</b></td>
-                    <td>{{ account.Note|default_if_none:"" }}</td>
-                    <td>
-                        {% if account.Photo %}
-                    
-                        <a href="{{ account.Photo.url }}"><i class="fa fa-paperclip" aria-hidden="true"></i></a>
-                        {% endif %}
-                    </td>
-                </tr>
-
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No record exist</td>
-                </tr>
-                {% endfor %}
-
-            </tbody>
-        </table>
-    </div>
 </div>

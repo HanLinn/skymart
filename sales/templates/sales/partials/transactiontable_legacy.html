@@ -8,7 +8,7 @@
         <td class="text-end">{{ i.Quantity }} {{ i.Inventory.Unit }}</td>
         <td class="text-end">{{ i.Price }} {% if i.Profit < 1 %}<div class="text-danger">{% else %}<div class="text-warning">{% endif %}{{ i.Profit }}</div></td>
         <td class="text-end">{{ i.Amount }}</td>
-        <td>{% if SO.Status == 'O' %}<div class="btn-group"><button hx-confirm="Are you sure?" class="btn btn-danger" type="button" hx-post="{% url 'sodeletetransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-trash3"></i></button><button class="btn btn-primary" hx-get="{% url 'soedittransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-pencil-square"></i></button></div>{% endif %}</td>
+        <td>{% if SO.Status == 'O' %}<form method="post" class="d-inline">{% csrf_token %}<div class="btn-group"><button hx-confirm="Are you sure?" class="btn btn-danger" type="button" hx-post="{% url 'sodeletetransaction' i.id %}" hx-target="#transactiontable" hx-swap="outerHTML"><i class="bi bi-trash3"></i></button><button class="btn btn-primary" type="button" hx-get="{% url 'soedittransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-pencil-square"></i></button></div></form>{% endif %}</td>
       </tr>
       {% endfor %}
       <tr><td class="text-end" colspan="3"><b style="font-size: large;">Subtotal</b></td><td class="text-end"><b style="font-size: large;" id="subtotal">{{ SO.Subtotal|default_if_none:"0" }}</b></td><td><b>{{ SO.Currency }}</b></td></tr>

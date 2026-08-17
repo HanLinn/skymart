@@ -190,12 +190,14 @@ def newtransaction(request,id):
 
 @login_required(login_url='/login/')
 def deletetransaction(request,id):
-    tr = SO_Transaction.objects.filter(id=id)
     if request.method == 'POST':
-        t = SO_Transaction.objects.get(id=id)
+        t = SO_Transaction.objects.select_related('SO').get(id=id)
+        sales_order = t.SO
         t.delete()
+        context = {'SO': sales_order, 'form': STForm(initial={'SO': sales_order.id})}
+        return render(request, transaction_table_template(request), context)
 
-    return HttpResponse('')
+    return HttpResponse(status=405)
 
 @login_required(login_url='/login/')
 def geteditform(request,id):

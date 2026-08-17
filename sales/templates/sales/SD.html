@@ -75,6 +75,10 @@
   .pos-workspace section .table-responsive { flex: 1 1 auto; min-height: 0; overflow: auto; }
   .pos-workspace .pos-scroll-end { position: absolute; right: 1rem; bottom: .7rem; z-index: 2; border-radius: 99px; box-shadow: 0 .25rem .7rem rgba(18,59,99,.28); }
   .pos-workspace aside .card-body { height: 100%; overflow-y: auto; }
+  .pos-entry-toast { position: fixed; top: 1rem; left: 50%; z-index: 1080; width: min(calc(100vw - 2rem), 24rem); transform: translateX(-50%); border: 0; border-left: .4rem solid #facc15; background: #087f5b; color: #fff; box-shadow: 0 .6rem 1.75rem rgba(6,78,59,.35); }
+  .pos-entry-toast .text-success { color: #fef08a !important; }
+  .pos-entry-toast .btn-close { filter: invert(1) grayscale(1) brightness(3); opacity: .9; }
+  @media (min-width: 768px) { .pos-entry-toast { display: none !important; } }
   @media (max-width: 767.98px) {
     .pos-page { height: auto; min-height: calc(100dvh - 70px); overflow: visible; padding: .5rem; }
     .pos-header { border-radius: .75rem; }

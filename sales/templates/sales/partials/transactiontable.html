@@ -19,10 +19,12 @@
                   <td class="text-end fw-bold">{{ i.Amount }}</td>
                   <td class="text-center">
                     {% if SO.Status == 'O' %}
-                    <div class="btn-group btn-group-sm" role="group">
-                      <button hx-confirm="Remove this item?" class="btn btn-outline-danger" type="button" hx-post="{% url 'sodeletetransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-trash3"></i></button>
-                      <button class="btn btn-outline-primary" hx-get="{% url 'soedittransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-pencil-square"></i></button>
-                    </div>
+                    <form method="post" class="d-inline">{% csrf_token %}
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button hx-confirm="Remove this item?" class="btn btn-outline-danger" type="button" hx-post="{% url 'sodeletetransaction' i.id %}" hx-target="#transactiontable" hx-swap="outerHTML"><i class="bi bi-trash3"></i></button>
+                        <button class="btn btn-outline-primary" type="button" hx-get="{% url 'soedittransaction' i.id %}" hx-target="#t-{{ i.id }}" hx-swap="outerHTML"><i class="bi bi-pencil-square"></i></button>
+                      </div>
+                    </form>
                     {% endif %}
                   </td>
                 </tr>
@@ -51,6 +53,21 @@
     </aside>
   </div>
 </div>
+
+{% if highlight_line_id %}
+<div id="pos-entry-toast" class="toast pos-entry-toast" role="status" aria-live="polite" aria-atomic="true">
+  <div class="d-flex align-items-center">
+    <div class="toast-body fw-semibold"><i class="bi bi-check-circle-fill text-success me-1"></i> {% if highlight_kind == 'updated' %}Quantity updated{% else %}Item added to cart{% endif %}</div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
+<script>
+(function () {
+  const toast = document.getElementById('pos-entry-toast');
+  if (toast && window.bootstrap?.Toast) bootstrap.Toast.getOrCreateInstance(toast, { delay: 1800 }).show();
+})();
+</script>
+{% endif %}
 
 <script>
 if (!window.skymartPosCartScrollRegistered) {

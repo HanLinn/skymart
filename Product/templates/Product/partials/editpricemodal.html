@@ -40,16 +40,25 @@
 
   <script>
     function closeModal() {
-      var container = document.getElementById("modals-here")
-      var backdrop = document.getElementById("modal-backdrop")
-      var modal = document.getElementById("modal")
+      var container = document.getElementById("modals-here");
+      var backdrop = document.getElementById("modal-backdrop");
+      var modal = document.getElementById("modal");
 
-      modal.classList.remove("show")
-      backdrop.classList.remove("show")
+      if (modal) {
+        modal.classList.remove("show");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+      }
+      if (backdrop) {
+        backdrop.classList.remove("show");
+        backdrop.style.display = "none";
+      }
+      document.body.classList.remove("modal-open");
+      document.body.style.removeProperty("overflow");
+      document.body.style.removeProperty("padding-right");
 
       setTimeout(function () {
-        container.removeChild(backdrop)
-        container.removeChild(modal)
+        if (container) container.replaceChildren();
       }, 200)
     }
     document.addEventListener('keydown', (event) => {

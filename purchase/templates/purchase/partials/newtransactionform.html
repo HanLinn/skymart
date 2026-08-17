@@ -1,24 +1,44 @@
-<div id='transactionform'>
-  <div class="spinner-border text-primary htmx-indicator" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-  <input class="form-control" type='text' placeholder="search" hx-get="{% url 'getsearchresultp' PO.id %}"
-      hx-target='#searchresult' hx-trigger="keyup changed delay:500ms" hx-indicator=".htmx-indicator" name="search"
-      style="size:large" value="{{ form.initial.Inventory.ProductName }}" hx-indicator=".htmx-indicator">
-  {% include 'purchase/partials/searchresult.html' %}
-  <form class='form-inline mt-1' method="POST" hx-post="{% url 'newpotransaction' PO.id %}" hx-target='#transactiontable'
-      hx-trigger='submit' hx-swap="outerHTML" autocomplete="off" hx-indicator=".htmx-indicator" >
-      {% csrf_token %}
-      {{form.Inventory }}
-      {{form.Quantity }}
-      {{form.Price }}{{ form.PO }}
-      <button class='btn btn-primary mr-1' type='submit'>Submit</button>
-      {% if form.initial.Inventory %}
-      <a class='btn btn-primary text-white' hx-get="{% url 'editprice' form.initial.Inventory.id %}" hx-target="#content" hx-swap="outerHTML">Edit Price</a>
-      {% endif %}
-      {{ form.errors }}
-  </form>
-  <div id="content"></div>
-</br>
+<div id="transactionform" class="card pd-entry-panel border-primary mt-3">
+  <div class="card-body p-3">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h2 class="h6 mb-0"><i class="bi bi-plus-circle text-primary"></i> Add product</h2>
+      <div class="spinner-border spinner-border-sm text-primary htmx-indicator" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <label class="form-label" for="purchase-product-search">Search product</label>
+    <input class="form-control" id="purchase-product-search" type="search" placeholder="Type a product name, barcode, or tag" hx-get="{% url 'getsearchresultp' PO.id %}"
+        hx-target="#searchresult" hx-trigger="keyup changed delay:350ms" hx-indicator=".htmx-indicator" name="search"
+        value="{{ form.initial.Inventory.ProductName }}" autocomplete="off">
+    {% include 'purchase/partials/searchresult.html' %}
 
+    {% if form.initial.Inventory %}
+    <form class="mt-3" method="POST" hx-post="{% url 'newpotransaction' PO.id %}" hx-target="#transactiontable"
+        hx-trigger="submit" hx-swap="outerHTML" autocomplete="off" hx-indicator=".htmx-indicator">
+      {% csrf_token %}{{ form.Inventory }}{{ form.PO }}
+      <div class="alert alert-primary py-2 mb-3"><i class="bi bi-check-circle-fill"></i> Selected: <strong>{{ form.initial.Inventory }}</strong></div>
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-4"><label class="form-label" for="Quantity">Quantity</label>{{ form.Quantity }}</div>
+        <div class="col-sm-4"><label class="form-label" for="Price">Buying price</label>{{ form.Price }}</div>
+        <div class="col-sm-4 d-grid"><button class="btn btn-primary" type="submit"><i class="bi bi-plus-lg"></i> Add item</button></div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" hx-get="{% url 'editpricemodal' form.initial.Inventory.id %}"
+            hx-target="#modals-here" hx-swap="innerHTML" hx-indicator=".htmx-indicator"><i class="bi bi-pencil"></i> Edit price</button>
+      </div>
+      {{ form.errors }}
+    </form>
+    {% else %}
+    <p class="text-muted small mb-0 mt-3"><i class="bi bi-arrow-up"></i> Search and choose a product to enter quantity and buying price.</p>
+    {% endif %}
+  </div>
 </div>
+
+<script>
+if (!window.purchaseTransactionEntryFocusRegistered) {
+  window.purchaseTransactionEntryFocusRegistered = true;
+  document.body.addEventListener('htmx:afterSwap', function (event) {
+    if (event.detail.target.id === 'transactionform' && document.getElementById('inventory')?.value) {
+      document.getElementById('Quantity')?.focus();
+    }
+  });
+}
+</script>

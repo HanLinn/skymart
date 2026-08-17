@@ -2,6 +2,17 @@
 {% block subnav %}<a class="navbar-brand ml-2" href="{% url 'purchaseindex' %}"><i
         class="bi bi-bag"></i> Purchase List</a>{% endblock %}
 {% block content %}
+<style>
+    .pd-entry-panel { border-radius: .75rem; }
+    .pd-entry-panel .form-label { color: #495057; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .pd-search-results { max-height: 15rem; overflow-y: auto; }
+    .pd-search-result { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .75rem; align-items: center; }
+    .pd-search-result-name { min-width: 0; color: #0d6efd; font-weight: 600; overflow-wrap: anywhere; }
+    .pd-search-result-price { color: #495057; font-size: .85rem; text-align: right; white-space: nowrap; }
+    .pd-search-result-price small { display: block; color: #6c757d; font-size: .68rem; }
+    .pd-entry-scroll-space { height: 10rem; }
+    @media (max-width: 575.98px) { .pd-search-result { grid-template-columns: minmax(0, 1fr) auto; } .pd-search-result-price:last-child { display: none; } }
+</style>
 <div class='container-fluid min-vh-100'>
 
     <div class='row min-vh-100'>
@@ -44,7 +55,7 @@
             </div>
         </div>
             <!-- hardcopy container -->
-        <div class="col-5  mh-100 vh-100 overflow-auto">
+        <div class="d-none d-lg-block col-lg-5 mh-100 vh-100 overflow-auto">
             {% include "purchase/partials/hardcopy.html" %}
         </div>
     </div>
