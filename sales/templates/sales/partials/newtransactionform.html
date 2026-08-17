@@ -260,6 +260,66 @@ if (!window.skymartBarcodeAlertRegistered) {
 </script>
 
 <script>
+if (!window.skymartGlobalBarcodeScanRegistered) {
+  window.skymartGlobalBarcodeScanRegistered = true;
+  let scannedBarcode = '';
+  let lastScanKeyAt = 0;
+  let clearScanTimer;
+  let barcodeRequestPending = false;
+
+  function clearScannedBarcode() {
+    scannedBarcode = '';
+    lastScanKeyAt = 0;
+    window.clearTimeout(clearScanTimer);
+  }
+
+  function isTypingInField() {
+    const active = document.activeElement;
+    return active?.matches('input, textarea, select, [contenteditable="true"]');
+  }
+
+  function submitScannedBarcode(barcode) {
+    const form = document.querySelector('form[hx-get*="/barcode/"]');
+    const input = document.getElementById('barcode');
+    if (!form || !input || barcodeRequestPending) return;
+    barcodeRequestPending = true;
+    input.value = barcode;
+    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey || isTypingInField()) return;
+    if (document.getElementById('barcode-not-found-dialog')?.open) return;
+
+    const now = Date.now();
+    if (event.key === 'Enter') {
+      if (scannedBarcode.length >= 3 && now - lastScanKeyAt < 120) {
+        event.preventDefault();
+        const barcode = scannedBarcode;
+        clearScannedBarcode();
+        submitScannedBarcode(barcode);
+      } else {
+        clearScannedBarcode();
+      }
+      return;
+    }
+
+    if (event.key.length !== 1) return;
+    if (lastScanKeyAt && now - lastScanKeyAt > 120) scannedBarcode = '';
+    scannedBarcode += event.key;
+    lastScanKeyAt = now;
+    window.clearTimeout(clearScanTimer);
+    clearScanTimer = window.setTimeout(clearScannedBarcode, 160);
+  }, true);
+
+  document.body.addEventListener('htmx:afterRequest', function (event) {
+    if (event.detail.requestConfig?.path?.includes('/barcode/')) barcodeRequestPending = false;
+  });
+}
+</script>
+
+<script>
   function setDefault() {
     var input = document.getElementById('payment-input');
     if (!input.value) {  // Only set the default value if empty

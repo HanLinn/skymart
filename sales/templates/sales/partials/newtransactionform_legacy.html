@@ -1,14 +1,14 @@
 <div class="row" id="transactionform">
   <div class="col-6">
     {% if SO.Status == 'O' %}
-    <form class="input-group" method="get" hx-get="{% url 'barcode' SO.id %}" hx-trigger="submit" hx-target="#transactiontable" autocomplete="off">
+    <form class="input-group" method="get" hx-get="{% url 'barcode' SO.id %}" hx-trigger="submit" hx-target="#transactiontable" hx-swap="outerHTML" autocomplete="off">
       <input class="form-control" type="number" id="quantity" placeholder="Quantity" name="quantity" value="1">
       <input class="form-control" type="text" id="barcode" placeholder="Barcode" name="barcode" autofocus>
       <button class="btn btn-outline-primary">Add</button>
     </form>
     <div class="mt-3">
       <label for="payment-input" class="form-label">Payment</label>
-      <input class="form-control" id="payment-input" type="number" placeholder="Payment" name="payment" hx-get="{% url 'getPayment' SO.id %}" hx-target="#transactiontable" hx-trigger="change" autocomplete="off" onfocus="setLegacyPayment()">
+      <input class="form-control" id="payment-input" type="number" placeholder="Payment" name="payment" hx-get="{% url 'getPayment' SO.id %}" hx-target="#transactiontable" hx-trigger="change" hx-swap="outerHTML" autocomplete="off" onfocus="setLegacyPayment()">
     </div>
     {% endif %}
     <p class="text-primary">{{ message }}</p>
@@ -30,6 +30,65 @@
     {% include 'sales/partials/manualtransactionform_legacy.html' %}
   </div>
 </div>
+
+<script>
+if (!window.skymartGlobalBarcodeScanRegistered) {
+  window.skymartGlobalBarcodeScanRegistered = true;
+  let scannedBarcode = '';
+  let lastScanKeyAt = 0;
+  let clearScanTimer;
+  let barcodeRequestPending = false;
+
+  function clearScannedBarcode() {
+    scannedBarcode = '';
+    lastScanKeyAt = 0;
+    window.clearTimeout(clearScanTimer);
+  }
+
+  function isTypingInField() {
+    const active = document.activeElement;
+    return active?.matches('input, textarea, select, [contenteditable="true"]');
+  }
+
+  function submitScannedBarcode(barcode) {
+    const form = document.querySelector('form[hx-get*="/barcode/"]');
+    const input = document.getElementById('barcode');
+    if (!form || !input || barcodeRequestPending) return;
+    barcodeRequestPending = true;
+    input.value = barcode;
+    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey || isTypingInField()) return;
+
+    const now = Date.now();
+    if (event.key === 'Enter') {
+      if (scannedBarcode.length >= 3 && now - lastScanKeyAt < 120) {
+        event.preventDefault();
+        const barcode = scannedBarcode;
+        clearScannedBarcode();
+        submitScannedBarcode(barcode);
+      } else {
+        clearScannedBarcode();
+      }
+      return;
+    }
+
+    if (event.key.length !== 1) return;
+    if (lastScanKeyAt && now - lastScanKeyAt > 120) scannedBarcode = '';
+    scannedBarcode += event.key;
+    lastScanKeyAt = now;
+    window.clearTimeout(clearScanTimer);
+    clearScanTimer = window.setTimeout(clearScannedBarcode, 160);
+  }, true);
+
+  document.body.addEventListener('htmx:afterRequest', function (event) {
+    if (event.detail.requestConfig?.path?.includes('/barcode/')) barcodeRequestPending = false;
+  });
+}
+</script>
 
 <script>
   function setLegacyPayment() {
