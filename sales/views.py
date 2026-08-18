@@ -45,7 +45,10 @@ def sales_detail_destination(request):
 @login_required(login_url='/login/')
 def SalesIndex(request):
     customer = buyer.objects.all().order_by('Customer_Name')
-    SO_list = sales_order_list_queryset(SalesOrder.objects.all()).order_by('-id')
+    # Paginate the inexpensive order query first.  Aggregating every line item
+    # for every historical sales order before pagination becomes increasingly
+    # slow as the database grows.
+    SO_list = SalesOrder.objects.select_related('Customer').order_by('-id')
     page = request.GET.get('page',1)
     paginator = Paginator(SO_list,30)
     last = paginator.num_pages
@@ -58,9 +61,30 @@ def SalesIndex(request):
         SO = paginator.page(1)
     except EmptyPage:
         SO = paginator.page(paginator.num_pages)
-    sot = SO_Transaction.objects.filter(SO__CreateDate__gte=today,SO__Currency='B').aggregate(s=Sum(F('Price')*F('Quantity')))
-    sob = SO_Transaction.objects.filter(SO__CreateDate__gte=today,SO__Currency='K').aggregate(s=Sum(F('Price')*F('Quantity')))
-    context={'SO': SO,'last':last,'totalbaht':sot['s'],'totalkyat':sob['s'],'customer':customer}
+
+    # Calculate totals only for the orders displayed on this page, then retain
+    # the paginator object expected by the template.
+    page_order_ids = [order.id for order in SO.object_list]
+    page_orders = sales_order_list_queryset(
+        SalesOrder.objects.filter(id__in=page_order_ids)
+    )
+    page_orders_by_id = {order.id: order for order in page_orders}
+    SO.object_list = [page_orders_by_id[order_id] for order_id in page_order_ids]
+
+    # Both currencies can be calculated by one grouped query instead of two.
+    today_totals = {
+        row['SO__Currency']: row['total']
+        for row in SO_Transaction.objects.filter(SO__CreateDate__gte=today).values(
+            'SO__Currency'
+        ).annotate(total=Sum(F('Price') * F('Quantity')))
+    }
+    context={
+        'SO': SO,
+        'last': last,
+        'totalbaht': today_totals.get('B'),
+        'totalkyat': today_totals.get('K'),
+        'customer': customer,
+    }
     return render(request,'sales/SO_list.html',context)
 
 @login_required(login_url='/login/')

@@ -1,15 +1,14 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q,Sum,Count,Func,F,Case,When,DecimalField
-from django.db.models.functions import TruncDate
+from django.db.models import Q,Sum,Count,Func,F,Case,When,DecimalField,ExpressionWrapper,IntegerField
+from django.db.models.functions import Coalesce,TruncDate
 from dateutil.relativedelta import relativedelta
 from datetime import datetime,date
 from collections import defaultdict
 from Product.models import Product,CurrencyRate
 from sales.models import SO_Transaction,SalesOrder
-from warehouse.models import Related,Job
-from purchase.models import Vendor
+from warehouse.models import Related
 
 @login_required(login_url='/login/')
 def index(request):
@@ -31,21 +30,29 @@ def index(request):
 
 @login_required(login_url='/login/')
 def unisearch(request):
-    kw = request.GET.get('search')
+    kw = (request.GET.get('search') or '').strip()
     if len(kw) > 1:
-        product = Product.objects.filter(Q(ProductName__icontains=kw)|Q(Tag__icontains=kw)|Q(Barcode__icontains=kw)).exclude(Status='N')
-        customer = Related.objects.filter(RelatedName__icontains=kw)
-        job = Job.objects.filter(Q(id__icontains=kw)|Q(Agent__icontains=kw)|Q(Vehicle__icontains=kw)|Q(Note__icontains=kw))
-        so = SalesOrder.objects.filter(Q(id__icontains=kw)|Q(Note__icontains=kw)|Q(Customer__Customer_Name__icontains=kw))
-        vendor = Vendor.objects.filter(Q(Name__icontains=kw))
+        # Keep this autocomplete request bounded.  The result template should
+        # stay lightweight because it runs after users pause while typing.
+        product = Product.objects.filter(
+            Q(ProductName__icontains=kw) | Q(Tag__icontains=kw) | Q(Barcode__icontains=kw)
+        ).exclude(Status='N').order_by('ProductName')[:20]
+        customer = Related.objects.filter(RelatedName__icontains=kw)[:10]
+        line_amount = ExpressionWrapper(
+            F('so_transaction__Price') * F('so_transaction__Quantity'),
+            output_field=IntegerField(),
+        )
+        so = SalesOrder.objects.select_related('Customer').filter(
+            Q(id__icontains=kw) | Q(Note__icontains=kw) | Q(Customer__Customer_Name__icontains=kw)
+        ).annotate(
+            search_subtotal=Coalesce(Sum(line_amount), 0)
+        ).order_by('-id')[:10]
 
     else:
         product = []
         customer = []
-        job = []
-        vendor = []
         so = []
-    context={'products':product,'customer':customer,'job':job,'vendor':vendor,'so':so}
+    context={'products':product,'customer':customer,'so':so}
 
     return render(request,'main/partials/universalresult.html',context)
 

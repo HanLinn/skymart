@@ -19,7 +19,7 @@ status = [('O','Open'),('C','Close')]
 Currency = [('B','Baht'),('K','Kyat')]
 
 class SalesOrder(models.Model):
-    CreateDate = models.DateTimeField(auto_now_add=True)
+    CreateDate = models.DateTimeField(auto_now_add=True, db_index=True)
     Customer = models.ForeignKey(buyer,on_delete=models.PROTECT)
     Note = models.CharField(max_length=50,blank=True,null=True)
     Currency = models.CharField(max_length=4,choices=Currency)
