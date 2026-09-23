@@ -1,11 +1,19 @@
 <div id="searchresult" class="pos-suggestion-list">
   {% for result in results %}
-  <button type="button" class="pos-suggestion" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}?entry=manual"
-    hx-target="#transactionform" hx-trigger="click" hx-swap="outerHTML" hx-indicator=".htmx-indicator">
-    <span class="pos-suggestion-main"><strong>{{ result.ProductName }}</strong><small>{{ result.Unit }} · Stock {{ result.wh_stock }}</small></span>
-    <span class="pos-suggestion-prices"><span><small>Buy</small>{{ result.BuyingPrice }}</span><span><small>THB</small>{{ result.RetailBaht }}</span><span><small>MMK</small>{{ result.RetailKyat }}</span></span>
-    <i class="bi bi-arrow-right-short pos-suggestion-arrow"></i>
-  </button>
+  <div class="pos-suggestion-row">
+    <button type="button" class="pos-suggestion" hx-get="{% url 'filtertransaction' id=SO.id p=result.id %}?entry=manual"
+      hx-target="#transactionform" hx-trigger="click" hx-swap="outerHTML" hx-indicator=".htmx-indicator">
+      <span class="pos-suggestion-main"><strong>{{ result.ProductName }}</strong><small>{{ result.Unit }} · Stock {{ result.wh_stock }}</small></span>
+      <span class="pos-suggestion-prices"><span><small>Buy</small>{{ result.BuyingPrice }}</span><span><small>THB</small>{{ result.RetailBaht }}</span><span><small>MMK</small>{{ result.RetailKyat }}</span></span>
+      <i class="bi bi-arrow-right-short pos-suggestion-arrow"></i>
+    </button>
+    <button type="button" class="btn btn-outline-primary pos-product-price-button" title="View or change product prices"
+      aria-label="View or change prices for {{ result.ProductName }}" hx-get="{% url 'editpricemodal' result.id %}"
+      hx-target="#modals-here" hx-swap="innerHTML"
+      _="on htmx:afterOnLoad wait 10ms then add .show to #modal then add .show to #modal-backdrop">
+      <i class="bi bi-tags"></i>
+    </button>
+  </div>
   {% empty %}
   {% if search_text %}<div class="pos-suggestion-empty"><i class="bi bi-search"></i> No matching products found.</div>{% endif %}
   {% endfor %}
